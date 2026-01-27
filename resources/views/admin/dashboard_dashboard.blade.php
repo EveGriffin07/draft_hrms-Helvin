@@ -14,7 +14,11 @@
   <!-- Header -->
   <header>
     <div class="title">Web-Based HRMS</div>
-    <div class="user-info"><i class="fa-regular fa-bell"></i> &nbsp; HR Admin</div>
+    <div class="user-info">
+    <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
+        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
+    </a>
+</div>
   </header>
 
   <div class="container">

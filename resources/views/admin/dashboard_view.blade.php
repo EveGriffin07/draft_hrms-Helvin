@@ -13,12 +13,16 @@
 <body>
   <header>
     <div class="title">Web-Based HRMS</div>
-    <div class="user-info"><i class="fa-regular fa-bell"></i> &nbsp; HR Admin</div>
+    <div class="user-info">
+    <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
+        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
+    </a>
+</div>
   </header>
 
   <div class="container">
 
-    @include('partials.sidebar')
+    @include('admin.layout.sidebar')
 
     <main>
       <div class="breadcrumb">Home > Dashboard > View Announcements</div>
@@ -46,7 +50,8 @@
             <!-- Dummy data row 1 -->
             <tr>
               <td>
-                <a href="{{ route('admin.dashboard.announcement.view') }}" class="link-title">
+                <a href="{{ route('admin.dashboard.announcement.detail') }}" class="link-title"
+                   class="link-title">
                   System Maintenance Notice
                 </a>
               </td>
@@ -58,7 +63,8 @@
             <!-- Dummy data row 2 -->
             <tr>
               <td>
-                <a href="{{ route('admin.dashboard.announcement.view') }}" class="link-title">
+                <a href="#"
+                   class="link-title">
                   New Training: Advanced Excel
                 </a>
               </td>
@@ -70,8 +76,9 @@
             <!-- Dummy data row 3 -->
             <tr>
               <td>
-                <a href="{{ route('admin.dashboard.announcement.view') }}" class="link-title">
-                  HR Policy Update - WFH Guidelines
+                <a href="#"
+                   class="link-title">
+                  HR Policy Update – WFH Guidelines
                 </a>
               </td>
               <td>2025-11-10</td>

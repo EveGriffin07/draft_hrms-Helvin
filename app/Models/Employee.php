@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Employee extends Model
+{
+    protected $primaryKey = 'employee_id';
+    protected $guarded = [];
+
+    // Relationship: Belongs to Department
+    public function department() {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
+
+    // Relationship: Belongs to Position
+    public function position() {
+        return $this->belongsTo(Position::class, 'position_id');
+    }
+
+    // Relationship: Belongs to User (Login account)
+    public function user() {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relationship: One Employee has many Attendance records
+    public function attendance() {
+        return $this->hasMany(Attendance::class, 'employee_id');
+    }
+}

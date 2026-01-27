@@ -13,11 +13,15 @@
 <body>
   <header>
     <div class="title">Web-Based HRMS</div>
-    <div class="user-info"><i class="fa-regular fa-bell"></i> &nbsp; HR Admin</div>
+    <div class="user-info">
+    <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
+        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
+    </a>
+</div>
   </header>
 
   <div class="container">
-    @include('partials.sidebar')
+    @include('admin.layout.sidebar')
 
     <main>
       <div class="breadcrumb">Home > Recruitment > View Applicants</div>
@@ -45,7 +49,7 @@
               <td>aisyah@example.com</td>
               <td>012-3456789</td>
               <td>Shortlisted</td>
-              <td><a href="{{ route('admin.recruitment.applicants.show') }}" class="btn btn-primary">
+              <td><a href="{{ route('admin.applicants.show') }}" class="btn btn-primary">
                   View Details
                 </a></td>
             </tr>

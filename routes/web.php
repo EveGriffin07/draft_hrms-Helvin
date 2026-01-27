@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\EmployeeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -271,5 +272,43 @@ Route::get('profile', function () {
     Route::get('/dashboard/view', function () {
         return view('admin.dashboard_view');
     })->name('admin.dashboard.view');
+
+    Route::prefix('applicant')->middleware('auth')->group(function () {
+
+    Route::get('/jobs', function () {
+        return view('applicant.jobs');
+    })->name('applicant.jobs');
+
+    Route::get('/applications', function () {
+        return view('applicant.applications');
+    })->name('applicant.applications');
+
+    Route::get('job-details', function () {
+    return view('applicant.job_details');
+})->name('job.details');
+
+Route::get('apply', function () {
+        return view('applicant.job_apply');
+    })->name('applicant.apply');
+
+    Route::get('applications', function () {
+    return view('applicant.applications');
+})->name('applicant.applications');
+
+Route::get('profile', function () {
+    return view('applicant.profile');
+})->name('applicant.profile');
+
+
+});
+
+Route::middleware(['auth'])->group(function () {
+    
+    // This is the line that fixes your error:
+    Route::get('/employee/dashboard', [EmployeeController::class, 'index'])
+         ->name('employee.dashboard');
+
+});
+
 
 });

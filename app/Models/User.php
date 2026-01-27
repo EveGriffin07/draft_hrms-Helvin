@@ -12,15 +12,20 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    // IMPORTANT: Tell Laravel your primary key is 'user_id', not 'id'
+    protected $primaryKey = 'user_id';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        'user_id', // Added this so you can specify ID '1' in seeder
         'name',
         'email',
         'password',
+        'role',    // Added this so the Seeder can set 'admin'
     ];
 
     /**

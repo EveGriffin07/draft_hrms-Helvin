@@ -148,12 +148,16 @@
 
 <header>
     <div class="title">Web-Based HRMS</div>
-    <div class="user-info"><i class="fa-regular fa-bell"></i> &nbsp; HR Admin</div>
+    <div class="user-info">
+    <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
+        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
+    </a>
+</div>
 </header>
 
 <div class="container">
 
-    @include('partials.sidebar')
+    @include('admin.layout.sidebar')
 
     <main>
 
@@ -214,12 +218,12 @@
                     </div>
 
                     <div class="evaluation-group">
-                        <label>Test Score (0-100)</label>
+                        <label>Test Score (0–100)</label>
                         <input type="number" name="test_score" placeholder="e.g. 80" min="0" max="100">
                     </div>
 
                     <div class="evaluation-group">
-                        <label>Interview Score (0-100)</label>
+                        <label>Interview Score (0–100)</label>
                         <input type="number" name="interview_score" placeholder="e.g. 85" min="0" max="100">
                     </div>
 
@@ -230,7 +234,7 @@
 
                     <div class="evaluation-group" style="grid-column: 1 / -1;">
                         <label>Evaluation Notes</label>
-                        <textarea name="notes" placeholder="Comments about the candidate's strengths, weaknesses or suitability."></textarea>
+                        <textarea name="notes" placeholder="Comments about the candidate’s strengths, weaknesses or suitability."></textarea>
                     </div>
                 </div>
 
@@ -243,7 +247,7 @@
             </form>
         </div>
 
-        <footer>&copy; 2025 Web-Based HRMS. All Rights Reserved.</footer>
+        <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
 
     </main>
 </div>
