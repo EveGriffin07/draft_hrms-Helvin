@@ -79,14 +79,19 @@
       flex-shrink:0;
       box-shadow:0 8px 18px rgba(99,102,241,0.22);
     }
-    .kpi-card:nth-child(1) .kpi-icon { background:#dcfce7; color:#15803d; box-shadow:0 8px 18px rgba(34,197,94,0.2); }
+    /* Dynamic Colors based on status can be handled here if needed */
+    .kpi-card.present .kpi-icon { background:#dcfce7; color:#15803d; box-shadow:0 8px 18px rgba(34,197,94,0.2); }
+    .kpi-card.absent .kpi-icon { background:#fee2e2; color:#ef4444; box-shadow:0 8px 18px rgba(239,68,68,0.2); }
+    
     .kpi-card:nth-child(2) .kpi-icon { background:#e0f2fe; color:#0ea5e9; box-shadow:0 8px 18px rgba(14,165,233,0.2); }
     .kpi-card:nth-child(3) .kpi-icon { background:#fef9c3; color:#d97706; box-shadow:0 8px 18px rgba(234,179,8,0.2); }
     .kpi-card:nth-child(4) .kpi-icon { background:#ede9fe; color:#7c3aed; box-shadow:0 8px 18px rgba(124,58,237,0.2); }
+    
     .kpi-card.present .kpi-value { color:#0f172a; }
     .kpi-card.leave .kpi-value { color:#0ea5e9; }
     .kpi-card.training .kpi-value { color:#059669; }
     .kpi-card.payslip .kpi-value { color:#7c3aed; }
+    
     .kpi-label { font-size:12px; text-transform:uppercase; letter-spacing:0.05em; color:#9ca3af; }
     .kpi-value { font-size:22px; font-weight:800; color:#0f172a; line-height:1.2; }
     .kpi-meta { display:flex; align-items:center; gap:6px; color:#16a34a; font-weight:600; font-size:13px; }
@@ -219,7 +224,9 @@
 <body>
   <header>
     <div class="title">Web-Based HRMS</div>
-    <div class="user-info"><i class="fa-regular fa-bell"></i> &nbsp; HR Admin</div>
+    <div class="user-info">
+        <i class="fa-regular fa-bell"></i> &nbsp; {{ Auth::user()->name }}
+    </div>
   </header>
 
   <div class="container dashboard-shell">
@@ -233,42 +240,65 @@
           <div class="hero-subtitle">Personal overview of attendance, leave, payslips, training, and announcements.</div>
         </div>
         <div class="hero-actions">
-          <div class="chip"><i class="fa-regular fa-calendar"></i> 08 Dec 2025</div>
+          <div class="chip"><i class="fa-regular fa-calendar"></i> {{ \Carbon\Carbon::now()->format('d M Y') }}</div>
           <button class="pill-btn"><i class="fa-solid fa-plane-up"></i> Request Leave</button>
         </div>
       </div>
 
       <section class="kpi-grid">
-        <article class="kpi-card present">
+        <article class="kpi-card {{ $todayAttendance ? 'present' : 'absent' }}">
           <div class="kpi-icon"><i class="fa-solid fa-user-check"></i></div>
           <div>
             <div class="kpi-label">Attendance Today</div>
-            <div class="kpi-value">Present</div>
-            <div class="kpi-meta meta-blue"><span class="status-dot"></span> Clocked in 09:10 AM</div>
+            <div class="kpi-value">{{ $todayAttendance ? 'Present' : 'Absent' }}</div>
+            <div class="kpi-meta meta-blue">
+                <span class="status-dot"></span> 
+                @if($todayAttendance && $todayAttendance->clock_in_time)
+                    Clocked in {{ \Carbon\Carbon::parse($todayAttendance->clock_in_time)->format('h:i A') }}
+                @else
+                    Not clocked in
+                @endif
+            </div>
           </div>
         </article>
+
         <article class="kpi-card leave">
           <div class="kpi-icon"><i class="fa-solid fa-umbrella-beach"></i></div>
           <div>
             <div class="kpi-label">Leave Balance</div>
-            <div class="kpi-value">12.5 days</div>
-            <div class="kpi-meta meta-green"><i class="fa-solid fa-leaf"></i> Annual: 8 | Sick: 4.5</div>
+            <div class="kpi-value">{{ $leaveBalance }} days</div>
+            <div class="kpi-meta meta-green"><i class="fa-solid fa-leaf"></i> Annual Remaining</div>
           </div>
         </article>
+
         <article class="kpi-card training">
           <div class="kpi-icon"><i class="fa-solid fa-chalkboard-user"></i></div>
           <div>
             <div class="kpi-label">Upcoming Training</div>
-            <div class="kpi-value">2 sessions</div>
-            <div class="kpi-meta meta-green"><i class="fa-regular fa-calendar-check"></i> Next: 12 Dec, 18 Dec</div>
+            <div class="kpi-value">{{ $upcomingTrainings }} sessions</div>
+            <div class="kpi-meta meta-green"><i class="fa-regular fa-calendar-check"></i> Check schedule</div>
           </div>
         </article>
+
         <article class="kpi-card payslip">
           <div class="kpi-icon"><i class="fa-solid fa-file-lines"></i></div>
           <div>
             <div class="kpi-label">Payslips</div>
-            <div class="kpi-value">Nov 2025</div>
-            <div class="kpi-meta meta-purple"><i class="fa-solid fa-bolt"></i> Latest available</div>
+            <div class="kpi-value">
+                @if($latestPayslip)
+                    {{ $latestPayslip->period->period_month ?? 'N/A' }}
+                @else
+                    None
+                @endif
+            </div>
+            <div class="kpi-meta meta-purple">
+                <i class="fa-solid fa-bolt"></i> 
+                @if($latestPayslip)
+                    Net: RM{{ number_format($latestPayslip->net_salary, 2) }}
+                @else
+                    No records
+                @endif
+            </div>
           </div>
         </article>
       </section>
@@ -307,7 +337,6 @@
       </section>
       </div>
 
-      <!-- Reports & Analytics -->
       <section class="reports-card">
         <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;">
           <div>
@@ -394,55 +423,6 @@
               <tr><td>Thu</td><td>1 absent</td></tr>
             </tbody>
           </table>
-        </div>
-      </section>
-
-      <section class="reports-card report-section" id="section-overtime">
-        <h4 style="margin:0 0 6px;"><i class="fa-solid fa-wallet"></i> Overtime Cost</h4>
-        <p class="muted" style="margin:0 0 10px;">Approved OT hours and projected cost line similar to recruitment pipeline charts.</p>
-        <div class="chart-box" style="margin-bottom:12px;">
-          <canvas id="chart-overtime" class="chart-canvas"></canvas>
-        </div>
-        <table class="table-lite">
-          <thead><tr><th>Month</th><th>Hours</th><th>Cost</th></tr></thead>
-          <tbody>
-            <tr><td>Jan</td><td>6 h</td><td>RM640</td></tr>
-            <tr><td>Feb</td><td>12 h</td><td>RM1080</td></tr>
-            <tr><td>Mar</td><td>8 h</td><td>RM720</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="reports-card report-section" id="section-leave">
-        <h4 style="margin:0 0 6px;"><i class="fa-solid fa-umbrella-beach"></i> Leave Usage</h4>
-        <p class="muted" style="margin:0 0 10px;">Usage by type with a compact bar chart and balances table.</p>
-        <div class="chart-box" style="margin-bottom:12px;">
-          <canvas id="chart-leave-usage" class="chart-canvas"></canvas>
-        </div>
-        <table class="table-lite">
-          <thead><tr><th>Type</th><th>Used</th><th>Remaining</th></tr></thead>
-          <tbody>
-            <tr><td>Annual</td><td>6</td><td>8</td></tr>
-            <tr><td>Sick</td><td>2</td><td>6</td></tr>
-            <tr><td>Emergency</td><td>1</td><td>3</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section class="reports-card report-section" id="section-predictive">
-        <h4 style="margin:0 0 6px;"><i class="fa-solid fa-bolt"></i> Predictive Signals</h4>
-        <p class="muted" style="margin:0 0 10px;">Rule-based scoring to flag attendance risk, OT projection, and leave shortage.</p>
-        <div class="two-col">
-          <div class="mini-card" style="margin:0;">
-            <h4>Attendance Risk</h4>
-            <div class="value">--</div>
-            <p class="muted">Score</p>
-          </div>
-          <div class="mini-card" style="margin:0;">
-            <h4>Projected OT Cost</h4>
-            <div class="value">RM780</div>
-            <p class="muted">Avg last 3 months</p>
-          </div>
         </div>
       </section>
 

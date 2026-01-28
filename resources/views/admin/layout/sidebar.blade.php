@@ -11,8 +11,8 @@
         </a>
         <ul class="submenu">
             <li><a href="{{ route('admin.dashboard') }}">Dashboard Overview</a></li>
-            <li><a href="{{ route('admin.dashboard.announcement.add') }}">Add Announcement</a></li>
-            <li><a href="{{ route('admin.dashboard.announcement.view') }}">View Announcement</a></li>
+            <li><a href="{{ route('admin.announcements.index') }}">View Announcements</a></li>
+            <li><a href="{{ route('admin.announcements.create') }}">Add Announcement</a></li>
             <li><a href="{{ route('admin.assistant') }}">AI Assistant</a></li>
         </ul>
     </div>

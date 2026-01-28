@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AnnouncementController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -41,23 +44,24 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::prefix('admin')->middleware('auth')->group(function () {
 
-    // Dashboard
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard_dashboard');
-    })->name('admin.dashboard');
+    // 2. CHANGE THIS ROUTE TO USE THE CONTROLLER
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
-    // Announcements
-    Route::get('/dashboard/announcement/view', function () {
-        return view('admin.dashboard_view');
-    })->name('admin.dashboard.announcement.view');
+    // These can stay as they are for now (since they use static dummy data)
+    Route::get('/dashboard/announcement/view', [AnnouncementController::class, 'index'])
+         ->name('admin.announcements.index');
 
-    Route::get('/dashboard/announcement/add', function () {
-        return view('admin.dashboard_add');
-    })->name('admin.dashboard.announcement.add');
+    // View Create Form (GET)
+    Route::get('/dashboard/announcement/add', [AnnouncementController::class, 'create'])
+         ->name('admin.announcements.create');
 
-    Route::get('/dashboard/announcement/detail', function () {
-        return view('admin.dashboard_detail');
-    })->name('admin.dashboard.announcement.detail');
+    // Store Data (POST) - This fixes the "Method Not Supported" error
+    Route::post('/dashboard/announcement/store', [AnnouncementController::class, 'store'])
+         ->name('admin.announcements.store');
+
+    // View Details (GET)
+    Route::get('/dashboard/announcement/detail/{id}', [AnnouncementController::class, 'show'])
+         ->name('admin.announcements.show');
 
     // ⭐ AI Assistant (fixed)
     Route::get('/assistant', function () {

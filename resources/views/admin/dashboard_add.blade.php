@@ -12,12 +12,11 @@
 </head>
 <body>
 
-  <!-- Header -->
   <header>
     <div class="title">Web-Based HRMS</div>
     <div class="user-info">
     <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
-        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
+        <i class="fa-regular fa-bell"></i> &nbsp; {{ Auth::user()->name ?? 'HR Admin' }}
     </a>
 </div>
   </header>
@@ -34,23 +33,22 @@
 
       <div class="form-container">
 
-        <form action="#" method="POST" class="form-card">
+        <form action="{{ route('admin.announcements.store') }}" method="POST" class="form-card">
+          
+          @csrf 
 
           <h3><i class="fa-solid fa-bullhorn"></i> Announcement Details</h3>
 
-          <!-- Title -->
           <div class="form-group">
             <label for="title">Announcement Title <span>*</span></label>
             <input type="text" id="title" name="title" placeholder="E.g., System Maintenance Notice" required>
           </div>
 
-          <!-- Message -->
           <div class="form-group full-width">
             <label for="message">Message <span>*</span></label>
             <textarea id="message" name="message" rows="4" placeholder="Write the announcement message..." required></textarea>
           </div>
 
-          <!-- Priority -->
           <div class="form-group">
             <label for="priority">Priority <span>*</span></label>
             <select id="priority" name="priority" required>
@@ -61,7 +59,6 @@
             </select>
           </div>
 
-          <!-- Target Audience -->
           <div class="form-group">
             <label for="audience">Target Audience <span>*</span></label>
             <select id="audience" name="audience" required>
@@ -72,7 +69,6 @@
             </select>
           </div>
 
-          <!-- Optional: Department -->
           <div class="form-group">
             <label for="department">Department (Optional)</label>
             <select id="department" name="department">
@@ -85,13 +81,11 @@
             </select>
           </div>
 
-          <!-- Expiry -->
           <div class="form-group">
             <label for="expires">Expiry Date (Optional)</label>
             <input type="date" id="expires" name="expires">
           </div>
 
-          <!-- Remarks -->
           <div class="form-group full-width">
             <label for="remarks">Additional Notes</label>
             <textarea id="remarks" name="remarks" rows="3" placeholder="Optional notes or references..."></textarea>
@@ -102,7 +96,7 @@
               <i class="fa-solid fa-floppy-disk"></i> Save Announcement
             </button>
 
-            <a href="{{ url('/admin/dashboard/announcement') }}" class="btn btn-secondary">
+            <a href="{{ route('admin.announcements.index') }}" class="btn btn-secondary">
               <i class="fa-solid fa-arrow-left"></i> Back to Announcements
             </a>
           </div>

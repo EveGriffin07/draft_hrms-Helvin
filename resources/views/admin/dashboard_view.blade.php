@@ -14,10 +14,10 @@
   <header>
     <div class="title">Web-Based HRMS</div>
     <div class="user-info">
-    <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
-        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
-    </a>
-</div>
+      <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
+        <i class="fa-regular fa-bell"></i> &nbsp; {{ Auth::user()->name ?? 'HR Admin' }}
+      </a>
+    </div>
   </header>
 
   <div class="container">
@@ -32,7 +32,7 @@
       <div class="table-container">
 
         <div class="table-actions">
-          <a href="{{ route('admin.dashboard.announcement.add') }}" class="btn btn-primary">
+          <a href="{{ route('admin.announcements.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> Add Announcement
           </a>
         </div>
@@ -47,44 +47,34 @@
             </tr>
           </thead>
           <tbody>
-            <!-- Dummy data row 1 -->
+            @forelse($announcements as $announce)
             <tr>
               <td>
-                <a href="{{ route('admin.dashboard.announcement.detail') }}" class="link-title"
-                   class="link-title">
-                  System Maintenance Notice
+                <a href="{{ route('admin.announcements.show', $announce->announcement_id) }}" class="link-title">
+                  {{ $announce->title }}
                 </a>
               </td>
-              <td>2025-11-20</td>
-              <td><span class="badge badge-critical">Critical</span></td>
-              <td>All Employees</td>
-            </tr>
-
-            <!-- Dummy data row 2 -->
-            <tr>
               <td>
-                <a href="#"
-                   class="link-title">
-                  New Training: Advanced Excel
-                </a>
+                  {{ $announce->publish_at ? $announce->publish_at->format('Y-m-d') : $announce->created_at->format('Y-m-d') }}
               </td>
-              <td>2025-11-15</td>
-              <td><span class="badge badge-important">Important</span></td>
-              <td>Finance Department</td>
-            </tr>
-
-            <!-- Dummy data row 3 -->
-            <tr>
               <td>
-                <a href="#"
-                   class="link-title">
-                  HR Policy Update – WFH Guidelines
-                </a>
+                @if($announce->priority == 'Critical')
+                    <span class="badge badge-critical">Critical</span>
+                @elseif($announce->priority == 'Important')
+                    <span class="badge badge-important">Important</span>
+                @else
+                    <span class="badge badge-normal">Normal</span>
+                @endif
               </td>
-              <td>2025-11-10</td>
-              <td><span class="badge badge-normal">Normal</span></td>
-              <td>All Employees</td>
+              <td>{{ $announce->audience_type }}</td>
             </tr>
+            @empty
+            <tr>
+                <td colspan="4" style="text-align:center; padding: 20px; color: #666;">
+                    No announcements found. Click "Add Announcement" to create one.
+                </td>
+            </tr>
+            @endforelse
 
           </tbody>
         </table>
@@ -93,7 +83,5 @@
       <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
     </main>
   </div>
-
-  
 </body>
 </html>
