@@ -126,214 +126,45 @@
     </thead>
 
     <tbody>
-
-      {{-- Row 1 --}}
-      <tr>
-        <td>Software Engineer</td>
-        <td>IT Department</td>
-        <td>12 Feb 2025</td>
-        <td><span class="badge submitted">Submitted</span></td>
-        <td>
-          <a href="#" class="btn-view js-view-application" data-target="app-details-1" aria-expanded="false">View</a>
-        </td>
-      </tr>
-
-      {{-- Details Row 1 --}}
-      <tr id="app-details-1" class="app-details-row">
-        <td colspan="5" class="app-details-cell">
-          <div class="app-details-card">
-            <div class="app-details-head">
-              <div class="app-details-title">
-                Application Details
-                <span class="badge submitted">Submitted</span>
-              </div>
-              <button type="button" class="app-close-btn" data-close-details>&times;</button>
-            </div>
-
-            <div class="app-details-grid">
-              <div class="app-section">
-                <h4>Submitted Information</h4>
-                <div class="app-kv"><div class="k">Full Name</div><div class="v">John Lim</div></div>
-                <div class="app-kv"><div class="k">Email</div><div class="v">johnlim@email.com</div></div>
-                <div class="app-kv"><div class="k">Phone</div><div class="v">012-3456789</div></div>
-                <div class="app-kv"><div class="k">Cover Letter</div><div class="v">I am interested in this role and would like to contribute to your team.</div></div>
-
-                <a href="javascript:void(0)" class="app-file-btn disabled">
-                  <i class="fa-solid fa-file-pdf"></i> View Resume (PDF)
-                </a>
-              </div>
-
-              <div class="app-section">
-                <h4>Status Tracking</h4>
-                <div class="timeline">
-                  <div class="step active">
-                    <div class="dot"></div>
-                    <div class="txt">
-                      <div class="t">Submitted</div>
-                      <div class="d">Your application has been received.</div>
-                    </div>
-                  </div>
-                  <div class="step">
-                    <div class="dot"></div>
-                    <div class="txt">
-                      <div class="t">Under Review</div>
-                      <div class="d">HR is reviewing your application.</div>
-                    </div>
-                  </div>
-                  <div class="step">
-                    <div class="dot"></div>
-                    <div class="txt">
-                      <div class="t">Decision</div>
-                      <div class="d">Shortlisted / Rejected / Hired.</div>
-                    </div>
-                  </div>
+            @forelse($applications as $app)
+            <tr>
+              <td>
+                <div style="font-weight: 600; color: #1e293b;">
+                    {{ $app->job->job_title ?? 'Job Removed' }}
                 </div>
-              </div>
-            </div>
-
-          </div>
-        </td>
-      </tr>
-
-
-      {{-- Row 2 --}}
-      <tr>
-        <td>HR Executive</td>
-        <td>Human Resource</td>
-        <td>28 Jan 2025</td>
-        <td><span class="badge reviewing">Under Review</span></td>
-        <td>
-          <a href="#" class="btn-view js-view-application" data-target="app-details-2" aria-expanded="false">View</a>
-        </td>
-      </tr>
-
-      {{-- Details Row 2 --}}
-      <tr id="app-details-2" class="app-details-row">
-        <td colspan="5" class="app-details-cell">
-          <div class="app-details-card">
-            <div class="app-details-head">
-              <div class="app-details-title">
-                Application Details
-                <span class="badge reviewing">Under Review</span>
-              </div>
-              <button type="button" class="app-close-btn" data-close-details>&times;</button>
-            </div>
-
-            <div class="app-details-grid">
-              <div class="app-section">
-                <h4>Submitted Information</h4>
-                <div class="app-kv"><div class="k">Full Name</div><div class="v">Nur Aisyah</div></div>
-                <div class="app-kv"><div class="k">Email</div><div class="v">aisyah@email.com</div></div>
-                <div class="app-kv"><div class="k">Phone</div><div class="v">013-1112233</div></div>
-                <div class="app-kv"><div class="k">Cover Letter</div><div class="v">I am excited to join HR and support recruitment activities.</div></div>
-
-                <a href="javascript:void(0)" class="app-file-btn disabled">
-                  <i class="fa-solid fa-file-pdf"></i> View Resume (PDF)
+              </td>
+              <td>{{ $app->job->department ?? '-' }}</td>
+              <td>{{ $app->created_at->format('d M Y') }}</td>
+              <td>
+                @php
+                    $statusClass = match($app->app_stage) {
+                        'Hired' => 'badge-success',
+                        'Rejected' => 'badge-critical',
+                        'Interview' => 'badge-warning', // You might need to add CSS for this
+                        default => 'badge-normal'
+                    };
+                @endphp
+                <span class="badge {{ $statusClass }}">{{ $app->app_stage }}</span>
+              </td>
+              <td>
+                {{-- View Details Button (We can make this modal dynamic later) --}}
+                <a href="#" class="btn-view" onclick="alert('Details view coming soon!')">
+                    View
                 </a>
-              </div>
-
-              <div class="app-section">
-                <h4>Status Tracking</h4>
-                <div class="timeline">
-                  <div class="step done">
-                    <div class="dot"></div>
-                    <div class="txt">
-                      <div class="t">Submitted</div>
-                      <div class="d">Application received.</div>
-                    </div>
-                  </div>
-                  <div class="step active">
-                    <div class="dot"></div>
-                    <div class="txt">
-                      <div class="t">Under Review</div>
-                      <div class="d">Currently being reviewed.</div>
-                    </div>
-                  </div>
-                  <div class="step">
-                    <div class="dot"></div>
-                    <div class="txt">
-                      <div class="t">Decision</div>
-                      <div class="d">Shortlisted / Rejected / Hired.</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </td>
-      </tr>
-
-
-      {{-- Row 3 --}}
-      <tr>
-        <td>Marketing Assistant</td>
-        <td>Marketing</td>
-        <td>10 Jan 2025</td>
-        <td><span class="badge rejected">Rejected</span></td>
-        <td>
-          <a href="#" class="btn-view js-view-application" data-target="app-details-3" aria-expanded="false">View</a>
-        </td>
-      </tr>
-
-      {{-- Details Row 3 --}}
-      <tr id="app-details-3" class="app-details-row">
-        <td colspan="5" class="app-details-cell">
-          <div class="app-details-card">
-            <div class="app-details-head">
-              <div class="app-details-title">
-                Application Details
-                <span class="badge rejected">Rejected</span>
-              </div>
-              <button type="button" class="app-close-btn" data-close-details>&times;</button>
-            </div>
-
-            <div class="app-details-grid">
-              <div class="app-section">
-                <h4>Submitted Information</h4>
-                <div class="app-kv"><div class="k">Full Name</div><div class="v">Adam Lee</div></div>
-                <div class="app-kv"><div class="k">Email</div><div class="v">adamlee@email.com</div></div>
-                <div class="app-kv"><div class="k">Phone</div><div class="v">014-9988776</div></div>
-                <div class="app-kv"><div class="k">Cover Letter</div><div class="v">I am passionate about marketing and would like to join your team.</div></div>
-
-                <a href="javascript:void(0)" class="app-file-btn disabled">
-                  <i class="fa-solid fa-file-pdf"></i> View Resume (PDF)
-                </a>
-              </div>
-
-              <div class="app-section">
-                <h4>Status Tracking</h4>
-                <div class="timeline">
-                  <div class="step done">
-                    <div class="dot"></div>
-                    <div class="txt">
-                      <div class="t">Submitted</div>
-                      <div class="d">Application received.</div>
-                    </div>
-                  </div>
-                  <div class="step done">
-                    <div class="dot"></div>
-                    <div class="txt">
-                      <div class="t">Under Review</div>
-                      <div class="d">Reviewed by HR.</div>
-                    </div>
-                  </div>
-                  <div class="step active">
-                    <div class="dot"></div>
-                    <div class="txt">
-                      <div class="t">Rejected</div>
-                      <div class="d">This application was not selected.</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </td>
-      </tr>
-
-    </tbody>
+              </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 30px; color: #64748b;">
+                    <i class="fa-solid fa-folder-open" style="font-size: 24px; margin-bottom: 10px; opacity: 0.5;"></i>
+                    <p>You haven't applied for any jobs yet.</p>
+                    <a href="{{ route('applicant.jobs') }}" style="color: #2563eb; font-weight: 600; text-decoration: none;">
+                        Browse Jobs
+                    </a>
+                </td>
+            </tr>
+            @endforelse
+          </tbody>
   </table>
 
 </div>

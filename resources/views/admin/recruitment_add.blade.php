@@ -3,11 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Job Posting - HRMS</title>
+  <title>{{ isset($job) ? 'Edit Job' : 'Create Job' }} - HRMS</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
+
+  <style>
+    .status-box { 
+            background: #fff1f2; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid #fecaca; 
+            margin-top: 30px; 
+        }
+  </style>
 
 </head>
 <body>
@@ -23,81 +33,90 @@
   <div class="container">
     @include('admin.layout.sidebar')
     <main>
-      <div class="breadcrumb">Home > Recruitment > Add Job Posting</div>
-      <h2>Add Job Posting</h2>
-      <p class="subtitle">Create a new job listing to attract applicants for your organization.</p>
+      <div class="breadcrumb">Home > Recruitment > {{ isset($job) ? 'Edit Job' : 'Post New Job' }}</div>
+      <h2>{{ isset($job) ? 'Edit Job Details' : 'Create New Job Post' }}</h2>
+      <p class="subtitle">{{ isset($job) ? 'Update the details below. Changes are saved immediately.' : 'Fill in the details to publish a new job opening.' }}.</p>
 
       <div class="form-container">
-        <form action="#" method="POST" class="form-card">
-          <h3><i class="fa-solid fa-file-circle-plus"></i> Job Details</h3>
+        <form action="{{ isset($job) ? route('admin.recruitment.update', $job->job_id) : route('admin.recruitment.store') }}" method="POST" class="form-card">
+          @csrf
+
+          <h3><i class="fa-solid fa-briefcase"></i> Job Details</h3>
 
           <div class="form-group">
-            <label for="jobTitle">Job Title <span>*</span></label>
-            <input type="text" id="jobTitle" name="jobTitle" placeholder="Enter job title" required>
+            <label for="job_title">Job Title <span>*</span></label>
+            <input type="text" id="job_title" name="job_title" value="{{ old('job_title', $job->job_title ?? '') }}" placeholder="E.g., Senior Software Engineer" required>
+          </div>
+
+          <div class="form-group">
+            <label for="job_type">Job Type <span>*</span></label>
+            <select id="job_type" name="job_type" required>
+              <option value="Full-Time" {{ (old('job_type', $job->job_type ?? '') == 'Full-Time') ? 'selected' : '' }}>Full-Time</option>
+                            <option value="Part-Time" {{ (old('job_type', $job->job_type ?? '') == 'Part-Time') ? 'selected' : '' }}>Part-Time</option>
+                            <option value="Contract" {{ (old('job_type', $job->job_type ?? '') == 'Contract') ? 'selected' : '' }}>Contract</option>
+                            <option value="Internship" {{ (old('job_type', $job->job_type ?? '') == 'Internship') ? 'selected' : '' }}>Internship</option>
+            </select>
           </div>
 
           <div class="form-group">
             <label for="department">Department <span>*</span></label>
             <select id="department" name="department" required>
-              <option value="" disabled selected>Select Department</option>
-              <option value="Human Resources">Human Resources</option>
-              <option value="Finance">Finance</option>
-              <option value="IT">Information Technology</option>
-              <option value="Sales">Sales</option>
-              <option value="Marketing">Marketing</option>
+              <option value="Human Resources" {{ (old('department', $job->department ?? '') == 'Human Resources') ? 'selected' : '' }}>Human Resources</option>
+              <option value="Finance" {{ (old('department', $job->department ?? '') == 'Finance') ? 'selected' : '' }}>Finance</option>
+              <option value="IT" {{ (old('department', $job->department ?? '') == 'IT') ? 'selected' : '' }}>Information Technology</option>
+              <option value="Sales" {{ (old('department', $job->department ?? '') == 'Sales') ? 'selected' : '' }}>Sales</option>
+              <option value="Marketing" {{ (old('department', $job->department ?? '') == 'Marketing') ? 'selected' : '' }}>Marketing</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="employmentType">Employment Type <span>*</span></label>
-            <select id="employmentType" name="employmentType" required>
-              <option value="" disabled selected>Select Type</option>
-              <option value="Full-Time">Full-Time</option>
-              <option value="Part-Time">Part-Time</option>
-              <option value="Contract">Contract</option>
-              <option value="Internship">Internship</option>
-            </select>
+            <label for="location">Location <span>*</span></label>
+            <input type="text" id="location" value="{{ old('location', $job->location ?? '') }}" name="location" placeholder="E.g., Kuala Lumpur (Hybrid)" required>
           </div>
 
           <div class="form-group">
-            <label for="location">Job Location <span>*</span></label>
-            <input type="text" id="location" name="location" placeholder="e.g., Kuala Lumpur, Malaysia" required>
+            <label for="salary_range">Salary Range <span>*</span></label>
+            <input type="text" id="salary_range" value="{{ old('salary_range', $job->salary_range ?? '') }}" name="salary_range" placeholder="E.g., RM 4,000 - RM 6,000" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="job_description">Job Description <span>*</span></label>
+            <textarea id="job_description" name="job_description" rows="5" required>{{ old('job_description', $job->job_description ?? '') }}</textarea>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="requirements">Requirements <span>*</span></label>
+            <textarea id="requirements" name="requirements" rows="5" required>{{ old('requirements', $job->requirements ?? '') }}</textarea>
           </div>
 
           <div class="form-group">
-            <label for="salaryRange">Salary Range (MYR)</label>
-            <input type="text" id="salaryRange" name="salaryRange" placeholder="e.g., 3500 - 5000">
-          </div>
+                        <label>Closing Date</label>
+                        {{-- If editing, show the existing date. If new, default to empty. --}}
+                        <input type="date" name="closing_date" value="{{ old('closing_date', $job->closing_date ?? '') }}" required>
+                    </div>
 
-          <div class="form-group full-width">
-            <label for="description">Job Description <span>*</span></label>
-            <textarea id="description" name="description" rows="5" placeholder="Enter detailed job description and responsibilities" required></textarea>
-          </div>
-
-          <div class="form-group full-width">
-            <label for="requirements">Requirements</label>
-            <textarea id="requirements" name="requirements" rows="4" placeholder="List required skills, qualifications, and experience"></textarea>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group half">
-              <label for="closingDate">Application Closing Date</label>
-              <input type="date" id="closingDate" name="closingDate">
-            </div>
-
-            <div class="form-group half">
-              <label for="status">Status</label>
-              <select id="status" name="status">
-                <option value="Open">Open</option>
-                <option value="Closed">Closed</option>
-              </select>
-            </div>
-          </div>
+          {{-- STATUS (Only for Editing) --}}
+                    @if(isset($job))
+                    <div class="status-box">
+                        <label style="color: #991b1b;">Job Status</label>
+                        <select name="job_status" style="width:100%; border-color: #fca5a5;">
+                            <option value="Open" {{ $job->job_status == 'Open' ? 'selected' : '' }}>Open (Accepting Applicants)</option>
+                            <option value="Closed" {{ $job->job_status == 'Closed' ? 'selected' : '' }}>Closed (Hidden from public)</option>
+                        </select>
+                    </div>
+                    @else
+                        <input type="hidden" name="job_status" value="Open">
+                    @endif
 
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Job Posting</button>
-            <a href="{{ route('admin.recruitment') }}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Back to Recruitment</a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-floppy-disk"></i> {{ isset($job) ? 'Update Job Post' : 'Publish Job Post' }}
+            </button>
+            <a href="{{ route('admin.recruitment.index') }}" class="btn btn-secondary">
+              <i class="fa-solid fa-arrow-left"></i> Cancel
+            </a>
           </div>
+
         </form>
       </div>
 

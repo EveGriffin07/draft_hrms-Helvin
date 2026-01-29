@@ -28,8 +28,8 @@
             <i class="fa-solid fa-chevron-right arrow"></i>
         </a>
         <ul class="submenu">
-            <li><a href="{{ route('admin.recruitment') }}">Overview</a></li>
-            <li><a href="{{ url('/admin/recruitment/add') }}">Add Job Posting</a></li>
+            <li><a href="{{ route('admin.recruitment.index') }}">Overview</a></li>
+            <li><a href="{{ route('admin.recruitment.create') }}">Add Job Posting</a></li>
             <li><a href="{{ url('/admin/recruitment/applicants') }}">View Applicants</a></li>
         </ul>
     </div>

@@ -10,138 +10,35 @@
     <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
 
     <style>
-        .page-header {
-            margin-bottom: 18px;
-        }
-        .page-header h2 {
-            font-size: 22px;
-            margin-bottom: 4px;
-        }
-        .page-header .subtitle {
-            font-size: 13px;
-            color: #6b7280;
-        }
+        .page-header { margin-bottom: 18px; }
+        .page-header h2 { font-size: 22px; margin-bottom: 4px; }
+        .page-header .subtitle { font-size: 13px; color: #6b7280; }
 
-        .panel {
-            background: #ffffff;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            padding: 18px 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-        }
-        .panel-header h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: #1e3a8a;
-        }
+        .panel { background: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; padding: 18px 20px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
+        .panel-header h3 { font-size: 16px; margin-bottom: 10px; color: #1e3a8a; }
 
-        .module-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .module-list li {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-size: 13px;
-            border-bottom: 1px dashed #e5e7eb;
-        }
-        .module-list li:last-child {
-            border-bottom: none;
-        }
-        .module-list span {
-            color: #6b7280;
-        }
+        .module-list { list-style: none; padding: 0; margin: 0; }
+        .module-list li { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #e5e7eb; }
+        .module-list li:last-child { border-bottom: none; }
+        .module-list span { color: #6b7280; }
 
-        .evaluation-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px;
-            margin-top: 12px;
-        }
-        .evaluation-group label {
-            display: block;
-            font-size: 12px;
-            color: #4b5563;
-            margin-bottom: 4px;
-        }
-        .evaluation-group input,
-        .evaluation-group select,
-        .evaluation-group textarea {
-            width: 100%;
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            padding: 8px 10px;
-            font-size: 13px;
-        }
-        .evaluation-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        .evaluation-actions {
-            margin-top: 12px;
-            display: flex;
-            justify-content: flex-end;
-        }
-        .btn-save {
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 18px;
-            font-size: 13px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .evaluation-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 12px; }
+        .evaluation-group label { display: block; font-size: 12px; color: #4b5563; margin-bottom: 4px; }
+        .evaluation-group input, .evaluation-group select, .evaluation-group textarea { width: 100%; border-radius: 8px; border: 1px solid #d1d5db; padding: 8px 10px; font-size: 13px; }
+        .evaluation-group textarea { resize: vertical; min-height: 80px; }
+        
+        .evaluation-actions { margin-top: 12px; display: flex; justify-content: flex-end; }
+        .btn-save { background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
 
         /* Resume actions */
-.resume-actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-  align-items:center;
-}
-
-.btn-view-pdf{
-  background:#111827;
-  color:#fff;
-  border:none;
-  border-radius:8px;
-  padding:8px 14px;
-  font-size:13px;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  text-decoration:none;
-}
-
-.btn-view-pdf:hover{
-  opacity:.92;
-}
-
-.btn-download-pdf{
-  background:#2563eb;
-  color:#fff;
-  border:none;
-  border-radius:8px;
-  padding:8px 14px;
-  font-size:13px;
-  cursor:pointer;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  text-decoration:none;
-}
-.btn-download-pdf:hover{
-  opacity:.92;
-}
-
+        .resume-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; align-items:center; }
+        .btn-view-pdf { background:#111827; color:#fff; border:none; border-radius:8px; padding:8px 14px; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; text-decoration:none; }
+        .btn-view-pdf:hover { opacity:.92; }
+        .btn-download-pdf { background:#2563eb; color:#fff; border:none; border-radius:8px; padding:8px 14px; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; text-decoration:none; }
+        .btn-download-pdf:hover { opacity:.92; }
+        
+        .back-btn { display: inline-flex; align-items: center; text-decoration: none; color: #4b5563; font-size: 14px; margin-bottom: 10px; }
+        .back-btn:hover { color: #111827; }
     </style>
 </head>
 <body>
@@ -149,10 +46,10 @@
 <header>
     <div class="title">Web-Based HRMS</div>
     <div class="user-info">
-    <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
-        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
-    </a>
-</div>
+        <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
+            <i class="fa-regular fa-bell"></i> &nbsp; {{ Auth::user()->name ?? 'HR Admin' }}
+        </a>
+    </div>
 </header>
 
 <div class="container">
@@ -160,13 +57,22 @@
     @include('admin.layout.sidebar')
 
     <main>
+        <a href="{{ route('admin.applicants.index') }}" class="back-btn">
+            <i class="fa-solid fa-arrow-left"></i> &nbsp; Back to Applicants
+        </a>
 
         <div class="breadcrumb">Home > Recruitment > View Applicants > Applicant Details</div>
 
         <div class="page-header">
-            <h2>Applicant Details</h2>
+            <h2>{{ $application->applicant->full_name ?? 'Applicant Name' }}</h2>
             <p class="subtitle">Review applicant information and record evaluation scores for recruitment decisions.</p>
         </div>
+
+        @if(session('success'))
+            <div style="background: #d1fae5; color: #065f46; padding: 10px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #a7f3d0;">
+                <i class="fa-solid fa-check-circle"></i> {{ session('success') }}
+            </div>
+        @endif
 
         {{-- Applicant info --}}
         <div class="panel">
@@ -174,67 +80,71 @@
                 <h3>Application Information</h3>
             </div>
             <ul class="module-list">
-                {{-- Dummy data for UI; replace with variables later --}}
-                <li><span>Name</span><strong>Nur Aisyah</strong></li>
-                <li><span>Position Applied</span><strong>Software Engineer</strong></li>
-                <li><span>Department</span><strong>IT Department</strong></li>
-                <li><span>Email</span><strong>aisyah@example.com</strong></li>
-                <li><span>Phone</span><strong>012-3456789</strong></li>
+                <li><span>Name</span><strong>{{ $application->applicant->full_name ?? 'N/A' }}</strong></li>
+                <li><span>Position Applied</span><strong>{{ $application->job->job_title ?? 'Unknown Job' }}</strong></li>
+                <li><span>Department</span><strong>{{ $application->job->department ?? 'N/A' }}</strong></li>
+                <li><span>Email</span><strong>{{ $application->applicant->email ?? $application->applicant->user->email ?? 'N/A' }}</strong></li>
+                <li><span>Phone</span><strong>{{ $application->applicant->phone ?? 'N/A' }}</strong></li>
+                
                 <li>
-  <span>Resume (PDF)</span>
-  <div class="resume-actions">
-    <!-- UI dummy link (replace later with real file URL) -->
-    <a href="{{ asset('dummy/resume-sample.pdf') }}" target="_blank" class="btn-view-pdf">
-      <i class="fa-solid fa-file-pdf"></i> View PDF
-    </a>
+                    <span>Resume (PDF)</span>
+                    <div class="resume-actions">
+                        @if($application->resume_path)
+                            <a href="{{ asset('storage/' . $application->resume_path) }}" target="_blank" class="btn-view-pdf">
+                                <i class="fa-solid fa-file-pdf"></i> View PDF
+                            </a>
+                            <a href="{{ asset('storage/' . $application->resume_path) }}" download class="btn-download-pdf">
+                                <i class="fa-solid fa-download"></i> Download
+                            </a>
+                        @else
+                            <span style="font-style: italic; color: #999;">No resume uploaded</span>
+                        @endif
+                    </div>
+                </li>
 
-    <a href="{{ asset('dummy/resume-sample.pdf') }}" download class="btn-download-pdf">
-      <i class="fa-solid fa-download"></i> Download
-    </a>
-  </div>
-</li>
-
-                <li><span>Current Stage</span><strong>Shortlisted</strong></li>
+                <li><span>Current Stage</span><strong>{{ $application->app_stage }}</strong></li>
             </ul>
         </div>
 
-        {{-- Evaluation / scores UI only --}}
+        {{-- Evaluation Form --}}
         <div class="panel">
             <div class="panel-header">
                 <h3>Evaluation &amp; Application Stage</h3>
             </div>
 
-            <form onsubmit="event.preventDefault();">
+            <form action="{{ route('admin.applicants.evaluate', $application->application_id) }}" method="POST">
+                @csrf
+                
                 <div class="evaluation-grid">
+                    
                     <div class="evaluation-group">
                         <label>Application Stage</label>
-                        <select name="status">
-                            <option>Applied</option>
-                            <option selected>Shortlisted</option>
-                            <option>Interviewed</option>
-                            <option>Hired</option>
-                            <option>Rejected</option>
+                        <select name="status" disabled style="background-color: #f3f4f6;">
+                            <option>{{ $application->app_stage }}</option>
                         </select>
+                        <small style="color:#666; font-size:11px;">Stage updates automatically upon saving.</small>
                     </div>
 
                     <div class="evaluation-group">
                         <label>Test Score (0–100)</label>
-                        <input type="number" name="test_score" placeholder="e.g. 80" min="0" max="100">
+                        <input type="number" name="test_score" placeholder="e.g. 80" min="0" max="100" 
+                               value="{{ $application->test_score }}">
                     </div>
 
                     <div class="evaluation-group">
                         <label>Interview Score (0–100)</label>
-                        <input type="number" name="interview_score" placeholder="e.g. 85" min="0" max="100">
+                        <input type="number" name="interview_score" placeholder="e.g. 85" min="0" max="100" 
+                               value="{{ $application->interview_score }}">
                     </div>
 
                     <div class="evaluation-group">
                         <label>Overall Score</label>
-                        <input type="number" name="overall_score" placeholder="Auto-calculated later" disabled>
+                        <input type="number" value="{{ $application->overall_score }}" placeholder="Auto-calculated" disabled>
                     </div>
 
                     <div class="evaluation-group" style="grid-column: 1 / -1;">
                         <label>Evaluation Notes</label>
-                        <textarea name="notes" placeholder="Comments about the candidate’s strengths, weaknesses or suitability."></textarea>
+                        <textarea name="notes" placeholder="Comments about the candidate’s strengths, weaknesses or suitability.">{{ $application->evaluation_notes }}</textarea>
                     </div>
                 </div>
 

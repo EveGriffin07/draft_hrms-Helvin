@@ -6,7 +6,9 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnnouncementController;
-
+use App\Http\Controllers\JobPostController;
+use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\ApplicantJobController; 
 
 /*
 |--------------------------------------------------------------------------
@@ -44,275 +46,173 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::prefix('admin')->middleware('auth')->group(function () {
 
-    // 2. CHANGE THIS ROUTE TO USE THE CONTROLLER
+    // Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
-    // These can stay as they are for now (since they use static dummy data)
+    /*
+    |--------------------------------------------------------------------------
+    | Announcements
+    |--------------------------------------------------------------------------
+    */
     Route::get('/dashboard/announcement/view', [AnnouncementController::class, 'index'])
          ->name('admin.announcements.index');
 
-    // View Create Form (GET)
     Route::get('/dashboard/announcement/add', [AnnouncementController::class, 'create'])
          ->name('admin.announcements.create');
 
-    // Store Data (POST) - This fixes the "Method Not Supported" error
     Route::post('/dashboard/announcement/store', [AnnouncementController::class, 'store'])
          ->name('admin.announcements.store');
 
-    // View Details (GET)
     Route::get('/dashboard/announcement/detail/{id}', [AnnouncementController::class, 'show'])
          ->name('admin.announcements.show');
 
-    // ⭐ AI Assistant (fixed)
-    Route::get('/assistant', function () {
-        return view('admin.assistant');   // Path: resources/views/admin/assistant.blade.php
-    })->name('admin.assistant');
+    /*
+    |--------------------------------------------------------------------------
+    | Recruitment Module (Admin Side)
+    |--------------------------------------------------------------------------
+    */
+    // Job Posts
+    Route::get('/recruitment', [JobPostController::class, 'index'])
+         ->name('admin.recruitment.index');
 
+    Route::get('/recruitment/create', [JobPostController::class, 'create'])
+         ->name('admin.recruitment.create');
+
+    Route::post('/recruitment/store', [JobPostController::class, 'store'])
+         ->name('admin.recruitment.store');
+
+         Route::post('/recruitment/update/{id}', [JobPostController::class, 'update'])
+         ->name('admin.recruitment.update');
+
+    // Applicants
+    Route::get('/recruitment/applicants', [ApplicationController::class, 'index'])
+         ->name('admin.applicants.index');
+
+    Route::get('/recruitment/applicants/{id}', [ApplicationController::class, 'show'])
+         ->name('admin.applicants.show');
+         
+    Route::post('/recruitment/applicants/{id}/evaluate', [ApplicationController::class, 'saveEvaluation'])
+         ->name('admin.applicants.evaluate');
+
+    Route::post('/recruitment/applicants/{id}/status', [ApplicationController::class, 'updateStatus'])
+         ->name('admin.applicants.updateStatus');
+
+         // Edit Job Form
+    Route::get('/recruitment/edit/{id}', [JobPostController::class, 'edit'])
+         ->name('admin.recruitment.edit');
+         
+    // Update Job Data
+    Route::post('/recruitment/update/{id}', [JobPostController::class, 'update'])
+         ->name('admin.recruitment.update');
+
+    // Delete Job
+    Route::delete('/recruitment/delete/{id}', [JobPostController::class, 'destroy'])
+         ->name('admin.recruitment.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Other Modules (Appraisal, Training, Etc.)
+    |--------------------------------------------------------------------------
+    */
+    
+    // Appraisal
+    Route::get('/appraisal', function () { return view('admin.appraisal_admin'); })->name('admin.appraisal');
+    Route::get('/appraisal/add-kpi', function () { return view('admin.appraisal_add_kpi'); })->name('admin.appraisal.add-kpi');
+    Route::get('/appraisal/reviews', function () { return view('admin.appraisal_reviews'); })->name('admin.appraisal.reviews');
+    Route::get('/appraisal/employee-kpis', function () { return view('admin.appraisal_kpi_employee'); })->name('admin.appraisal.employee-kpis');
+    Route::get('/appraisal/employee-kpi-list', function () { return view('admin.appraisal_kpi_employee_list'); })->name('admin.appraisal.employee-kpi-list');
+    Route::view('/admin/appraisal/department-kpi', 'admin.appraisal_department_kpi')->name('admin.appraisal.department-kpi');
+
+    // Training
+    Route::get('/training', function () { return view('admin.training_admin'); })->name('admin.training');
+    Route::get('/training/add', function () { return view('admin.training_add'); })->name('admin.training.add');
+    Route::get('/training/show', function () { return view('admin.training_show'); })->name('admin.training.show');
+
+    // Onboarding
+    Route::get('/onboarding', function () { return view('admin.onboarding_admin'); })->name('admin.onboarding');
+    Route::get('/onboarding/add', function () { return view('admin.onboarding_add'); })->name('admin.onboarding.add');
+    Route::get('/onboarding/checklist', function () { return view('admin.onboarding_checklist'); })->name('admin.onboarding.checklist');
+
+    // Assistant & Reports
+    Route::get('/assistant', function () { return view('admin.assistant'); })->name('admin.assistant');
+    Route::get('/reports', function () { return view('admin.reports'); })->name('admin.reports.dashboard');
 
     // Profile
-    Route::get('/profile', function () {
-        return view('admin.profile');
-    })->name('admin.profile');
+    Route::get('/profile', function () { return view('admin.profile'); })->name('admin.profile');
+    
+    // Employee Management
+    Route::get('/employee/list', function () { return view('admin.employee_list'); })->name('admin.employee.list');
+    Route::get('/employee/add', function () { return view('admin.employee_add'); })->name('admin.employee.add');
 
+    // Attendance
+    Route::get('/attendance/tracking', function () { return view('admin.attendance_tracking'); })->name('admin.attendance.tracking');
+    Route::get('/attendance/penalty', function () { return view('admin.attendance_penalty'); })->name('admin.attendance.penalty');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Recruitment
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/recruitment', function () {
-        return view('admin.recruitment_admin');
-    })->name('admin.recruitment');
+    // Payroll
+    Route::prefix('/payroll')->group(function () {
+        Route::get('/overtime', function () { return view('admin.payroll_overtime'); })->name('admin.payroll.overtime');
+        Route::get('/salary', function () { return view('admin.payroll_salary'); })->name('admin.payroll.salary');
+        Route::get('/attendance', function () { return view('admin.payroll_attendance'); })->name('admin.payroll.attendance');
+        Route::get('/payslip', function () { return view('admin.payroll_payslip'); })->name('admin.payroll.payslip');
+    });
 
-    Route::get('/recruitment/add', function () {
-        return view('admin.recruitment_add');
-    })->name('admin.recruitment.add');
-
-    Route::get('/recruitment/applicants', function () {
-        return view('admin.recruitment_applicants');
-    })->name('admin.recruitment.applicants');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Appraisal
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/appraisal', function () {
-        return view('admin.appraisal_admin');
-    })->name('admin.appraisal');
-
-    Route::get('/appraisal/add-kpi', function () {
-        return view('admin.appraisal_add_kpi');
-    })->name('admin.appraisal.add-kpi');
-
-    Route::get('/appraisal/reviews', function () {
-        return view('admin.appraisal_reviews');
-    })->name('admin.appraisal.reviews');
-
-    Route::get('/appraisal/employee-kpis', function () {
-    return view('admin.appraisal_kpi_employee');
-})->name('admin.appraisal.employee-kpis');
-
-    Route::get('/appraisal/employee-kpi-list', function () {
-        return view('admin.appraisal_kpi_employee_list');
-    })->name('admin.appraisal.employee-kpi-list');
-
-    Route::view(
-  '/admin/appraisal/department-kpi',
-  'admin.appraisal_department_kpi'
-)->name('admin.appraisal.department-kpi');
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Training
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/training', function () {
-        return view('admin.training_admin');
-    })->name('admin.training');
-
-    Route::get('/training/add', function () {
-        return view('admin.training_add');
-    })->name('admin.training.add');
-
-    Route::get('/reports', function () {
-        return view('admin.reports');   // <-- your tabs report page
-    })->name('admin.reports.dashboard');
-
-    Route::get('/training/show', function () {
-    return view('admin.training_show'); // resources/views/admin/training_show.blade.php
-})->name('admin.training.show');
-    /*
-    |--------------------------------------------------------------------------
-    | Onboarding
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/onboarding', function () {
-        return view('admin.onboarding_admin');
-    })->name('admin.onboarding');
-
-    Route::get('/onboarding/add', function () {
-        return view('admin.onboarding_add');
-    })->name('admin.onboarding.add');
-
-    Route::get('/onboarding/checklist', function () {
-    return view('admin.onboarding_checklist');
-})->name('admin.onboarding.checklist');
-
-
-   Route::get('/admin/recruitment/applicant-details', function () {
-    // UI-only for now, later you can pass real data
-    return view('admin.applicants_show');
-})->name('admin.applicants.show');
+    // Leave
+    Route::prefix('/leave')->group(function () {
+        Route::get('/request', function () { return view('admin.leave_request'); })->name('admin.leave.request');
+        Route::get('/balance', function () { return view('admin.leave_balance'); })->name('admin.leave.balance');
+    });
 
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| APPLICANT ROUTES (User Side)
+|--------------------------------------------------------------------------
+*/
+// 2. THIS IS THE CORRECT BLOCK using the Controller
 Route::prefix('applicant')->middleware('auth')->group(function () {
 
-    Route::get('/jobs', function () {
-        return view('applicant.jobs');
-    })->name('applicant.jobs');
+    // Job List (Uses Controller to get $jobs)
+    Route::get('/jobs', [ApplicantJobController::class, 'index'])
+         ->name('applicant.jobs');
 
-    Route::get('/applications', function () {
-        return view('applicant.applications');
-    })->name('applicant.applications');
+    // Job Details (Uses Controller to get $job)
+    Route::get('/jobs/{id}', [ApplicantJobController::class, 'show'])
+         ->name('applicant.jobs.show');
 
-    Route::get('job-details', function () {
-    return view('applicant.job_details');
-})->name('job.details');
+    // Apply Form (Uses Controller to get $job)
+    Route::get('/jobs/{id}/apply', [ApplicantJobController::class, 'applyForm'])
+         ->name('applicant.jobs.apply');
 
-Route::get('apply', function () {
-        return view('applicant.job_apply');
-    })->name('applicant.apply');
+    // Submit Application (POST)
+    Route::post('/jobs/{id}/apply', [ApplicantJobController::class, 'submitApplication'])
+         ->name('applicant.jobs.submit');
 
-    Route::get('applications', function () {
-    return view('applicant.applications');
-})->name('applicant.applications');
+    // My Applications 
+    Route::get('/applications', [ApplicantJobController::class, 'myApplications'])
+         ->name('applicant.applications');
 
-Route::get('profile', function () {
-    return view('applicant.profile');
-})->name('applicant.profile');
+    // Profile
+    Route::get('/profile', [ApplicantJobController::class, 'profile'])
+         ->name('applicant.profile');
 
+    // Profile (Update)
+    Route::post('/profile/update', [ApplicantJobController::class, 'updateProfile'])
+         ->name('applicant.profile.update');
 
-
-
-    // ----------------------------
-    // Employee Management Module
-    // ----------------------------
-    Route::get('/employee/list', function () {
-        return view('admin.employee_list');
-    })->name('admin.employee.list');
-
-    Route::get('/employee/add', function () {
-        return view('admin.employee_add');
-    })->name('admin.employee.add');
-
-    Route::get('/profile', function () {
-        return view('admin.profile');
-    })->name('admin.profile');
-
-
-    // ----------------------------
-    // Attendance Management Module
-    // ----------------------------
-    Route::get('/attendance/tracking', function () {
-        return view('admin.attendance_tracking');
-    })->name('admin.attendance.tracking');
-
-    Route::get('/attendance/penalty', function () {
-        return view('admin.attendance_penalty');
-    })->name('admin.attendance.penalty');
-
-    // ----------------------------
-    // Payroll Management Module
-    // ----------------------------
-    Route::prefix('/payroll')->group(function () {
-        Route::get('/overtime', function () {
-            return view('admin.payroll_overtime');
-        })->name('admin.payroll.overtime');
-
-        Route::get('/salary', function () {
-            return view('admin.payroll_salary');
-        })->name('admin.payroll.salary');
-
-        Route::get('/attendance', function () {
-            return view('admin.payroll_attendance');
-        })->name('admin.payroll.attendance');
-
-        Route::get('/payslip', function () {
-            return view('admin.payroll_payslip');
-        })->name('admin.payroll.payslip');
-    });
-
-
-    // ----------------------------
-    // Leave Management Module
-    // ----------------------------
-    Route::prefix('/leave')->group(function () {
-        Route::get('/request', function () {
-            return view('admin.leave_request');
-        })->name('admin.leave.request');
-
-        Route::get('/balance', function () {
-            return view('admin.leave_balance');
-        })->name('admin.leave.balance');
-    });
-
-    // ----------------------------
-    // Assistant & Reports
-    // ----------------------------
-    Route::get('/assistant', function () {
-        return view('admin.assistant');
-    })->name('admin.assistant');
-
-    Route::get('/reports', function () {
-        return view('admin.reports');
-    })->name('admin.reports');
-
-    // Dashboard alt view
-    Route::get('/dashboard/view', function () {
-        return view('admin.dashboard_view');
-    })->name('admin.dashboard.view');
-
-    Route::prefix('applicant')->middleware('auth')->group(function () {
-
-    Route::get('/jobs', function () {
-        return view('applicant.jobs');
-    })->name('applicant.jobs');
-
-    Route::get('/applications', function () {
-        return view('applicant.applications');
-    })->name('applicant.applications');
-
-    Route::get('job-details', function () {
-    return view('applicant.job_details');
-})->name('job.details');
-
-Route::get('apply', function () {
-        return view('applicant.job_apply');
-    })->name('applicant.apply');
-
-    Route::get('applications', function () {
-    return view('applicant.applications');
-})->name('applicant.applications');
-
-Route::get('profile', function () {
-    return view('applicant.profile');
-})->name('applicant.profile');
-
+         Route::get('/profile/resume/delete', [ApplicantJobController::class, 'deleteResume'])
+         ->name('applicant.resume.delete');
 
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| EMPLOYEE ROUTES
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
-    
-    // This is the line that fixes your error:
     Route::get('/employee/dashboard', [EmployeeController::class, 'index'])
          ->name('employee.dashboard');
-
-});
-
-
 });
