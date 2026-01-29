@@ -109,6 +109,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::delete('/recruitment/delete/{id}', [JobPostController::class, 'destroy'])
          ->name('admin.recruitment.destroy');
 
+         Route::post('/recruitment/applicants/{id}/onboard', [ApplicationController::class, 'onboard'])
+         ->name('admin.applicants.onboard');
+
     /*
     |--------------------------------------------------------------------------
     | Other Modules (Appraisal, Training, Etc.)
