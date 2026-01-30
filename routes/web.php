@@ -8,7 +8,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\JobPostController;
 use App\Http\Controllers\ApplicationController;
-use App\Http\Controllers\ApplicantJobController; 
+use App\Http\Controllers\ApplicantJobController;
+use App\Http\Controllers\TrainingController; 
 
 /*
 |--------------------------------------------------------------------------
@@ -127,9 +128,30 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::view('/admin/appraisal/department-kpi', 'admin.appraisal_department_kpi')->name('admin.appraisal.department-kpi');
 
     // Training
-    Route::get('/training', function () { return view('admin.training_admin'); })->name('admin.training');
-    Route::get('/training/add', function () { return view('admin.training_add'); })->name('admin.training.add');
-    Route::get('/training/show', function () { return view('admin.training_show'); })->name('admin.training.show');
+    // List All
+    Route::get('/training', [TrainingController::class, 'index'])
+         ->name('admin.training');
+
+    // Create New (Form)
+    Route::get('/training/add', [TrainingController::class, 'create'])
+         ->name('admin.training.add');
+
+    // Store New (Action)
+    Route::post('/training/store', [TrainingController::class, 'store'])
+         ->name('admin.training.store');
+
+    // Show Details
+    Route::get('/training/show/{id}', [TrainingController::class, 'show'])
+         ->name('admin.training.show');
+
+         Route::get('/training/events', [TrainingController::class, 'getEvents'])
+         ->name('admin.training.events');
+
+         Route::post('/training/{id}/enroll', [TrainingController::class, 'storeEnrollment'])
+         ->name('admin.training.enroll');
+
+         Route::post('/training/enrollment/{id}/update', [TrainingController::class, 'updateEnrollmentStatus'])
+         ->name('admin.training.updateStatus');
 
     // Onboarding
     Route::get('/onboarding', function () { return view('admin.onboarding_admin'); })->name('admin.onboarding');

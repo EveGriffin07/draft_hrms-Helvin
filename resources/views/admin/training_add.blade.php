@@ -13,10 +13,10 @@
   <header>
     <div class="title">Web-Based HRMS</div>
     <div class="user-info">
-    <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
-        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
-    </a>
-</div>
+      <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
+          <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
+      </a>
+    </div>
   </header>
 
   <div class="container">
@@ -27,18 +27,31 @@
       <h2>Add Training Program</h2>
       <p class="subtitle">Plan, schedule, and record employee development training sessions.</p>
 
+      {{-- Display Validation Errors if any --}}
+      @if ($errors->any())
+        <div style="background-color: #fef2f2; color: #991b1b; padding: 10px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f87171;">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>- {{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+      @endif
+
       <div class="form-container">
-        <form action="#" method="POST" class="form-card">
+        <form action="{{ route('admin.training.store') }}" method="POST" class="form-card">
+          @csrf 
+          
           <h3><i class="fa-solid fa-graduation-cap"></i> Training Details</h3>
 
           <div class="form-group">
             <label for="trainingTitle">Training Title <span>*</span></label>
-            <input type="text" id="trainingTitle" name="trainingTitle" placeholder="e.g., Communication Skills Workshop" required>
+            <input type="text" id="trainingTitle" name="trainingTitle" placeholder="e.g., Communication Skills Workshop" value="{{ old('trainingTitle') }}" required>
           </div>
 
           <div class="form-group">
             <label for="trainerName">Trainer Name <span>*</span></label>
-            <input type="text" id="trainerName" name="trainerName" placeholder="e.g., John Tan" required>
+            <input type="text" id="trainerName" name="trainerName" placeholder="e.g., John Tan" value="{{ old('trainerName') }}" required>
           </div>
 
           <div class="form-group">
@@ -56,11 +69,11 @@
           <div class="form-row">
             <div class="form-group half">
               <label for="startDate">Start Date <span>*</span></label>
-              <input type="date" id="startDate" name="startDate" required>
+              <input type="date" id="startDate" name="startDate" value="{{ old('startDate') }}" required>
             </div>
             <div class="form-group half">
               <label for="endDate">End Date <span>*</span></label>
-              <input type="date" id="endDate" name="endDate" required>
+              <input type="date" id="endDate" name="endDate" value="{{ old('endDate') }}" required>
             </div>
           </div>
 
@@ -73,7 +86,6 @@
             </select>
           </div>
 
-          {{-- NEW: Training Location --}}
           <div class="form-group">
             <label for="location">Training Location <span>*</span></label>
             <input
@@ -81,13 +93,14 @@
               id="location"
               name="location"
               placeholder="e.g., HR Training Room 1, Kuala Lumpur or Zoom / MS Teams"
+              value="{{ old('location') }}"
               required
             >
           </div>
 
           <div class="form-group full-width">
             <label for="description">Training Description</label>
-            <textarea id="description" name="description" rows="4" placeholder="Enter brief description of training objectives"></textarea>
+            <textarea id="description" name="description" rows="4" placeholder="Enter brief description of training objectives">{{ old('description') }}</textarea>
           </div>
 
           <div class="form-actions">
@@ -104,7 +117,5 @@
       <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
     </main>
   </div>
-
-
 </body>
 </html>
