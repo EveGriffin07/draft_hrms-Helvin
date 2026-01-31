@@ -6,6 +6,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
+<<<<<<< HEAD
+=======
+<meta name="csrf-token" content="{{ csrf_token() }}">
+>>>>>>> chai-training
 <style>
   .box{background:#fff;border-radius:10px;padding:16px;margin-bottom:16px}
   table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}
@@ -52,7 +56,14 @@
         <div>
           <label>Department</label>
           <select id="dept">
+<<<<<<< HEAD
             <option value="">All</option><option>IT</option><option>HR</option><option>Finance</option><option>Marketing</option>
+=======
+            <option value="">All</option>
+            @foreach($departments as $dept)
+              <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
+            @endforeach
+>>>>>>> chai-training
           </select>
         </div>
         <div style="align-self:end">
@@ -109,6 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ==========================================
      SIDEBAR — single active, single open
      ========================================== */
+<<<<<<< HEAD
+=======
+  const ENDPOINT = "{{ route('admin.leave.balance.data') }}";
+>>>>>>> chai-training
   const groups  = document.querySelectorAll('.sidebar-group');
   const toggles = document.querySelectorAll('.sidebar-toggle');
   const links   = document.querySelectorAll('.submenu a');
@@ -380,6 +395,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // init
   filter();
+<<<<<<< HEAD
+=======
+  /* ================== Leave balance logic ================== */
+  const $ = (s)=>document.querySelector(s);
+  const tbody = $('#tbl tbody');
+
+  function render(rows) {
+    tbody.innerHTML = '';
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="7">No records.</td></tr>';
+      return;
+    }
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${r.name}</strong><br><span class="muted">${r.id}</span></td>
+        <td>${r.dept}</td>
+        <td>${r.annual}</td>
+        <td>${r.sick}</td>
+        <td>${r.unpaid}</td>
+        <td><button class="btn-ghost" data-id="${r.id}">View</button></td>
+        <td class="actions">
+          <input type="number" min="0" data-field="annual" data-id="${r.id}" value="${r.annual}" />
+          <input type="number" min="0" data-field="sick" data-id="${r.id}" value="${r.sick}" />
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+    bindActions(rows);
+  }
+
+  function bindActions(rows) {
+    document.querySelectorAll('.btn-ghost').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const row = rows.find(x => x.id === btn.dataset.id);
+        if (!row) return;
+        openModal(row);
+      });
+    });
+  }
+
+  async function loadData() {
+    tbody.innerHTML = '<tr><td colspan="7">Loading...</td></tr>';
+    const params = new URLSearchParams({
+      department: $('#dept').value,
+      q: $('#q').value.trim(),
+    });
+    try {
+      const resp = await fetch(`${ENDPOINT}?${params.toString()}`, { headers: { 'Accept': 'application/json' }});
+      if (!resp.ok) throw new Error('Failed to load balances');
+      const json = await resp.json();
+      render(Array.isArray(json.data) ? json.data : []);
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`;
+    }
+  }
+
+  $('#apply').addEventListener('click', loadData);
+  $('#clear').addEventListener('click', () => {
+    $('#q').value = '';
+    $('#dept').value = '';
+    loadData();
+  });
+
+  /* Modal */
+  const modal = document.getElementById('modal');
+  const meta = document.getElementById('meta');
+  const breakdown = document.getElementById('breakdown');
+  const validity = document.getElementById('validity');
+  document.getElementById('close').addEventListener('click', () => modal.style.display='none');
+
+  function openModal(row) {
+    meta.textContent = `${row.name} (${row.id}) — ${row.dept}`;
+    breakdown.innerHTML = row.detail.map(d => `
+      <tr>
+        <td style="padding:8px;">${d.type}</td>
+        <td style="padding:8px;text-align:right">${d.total}</td>
+        <td style="padding:8px;text-align:right">${d.used}</td>
+        <td style="padding:8px;text-align:right">${d.total - d.used}</td>
+      </tr>
+    `).join('');
+    validity.textContent = 'Validity: current plan year (demo data)';
+    modal.style.display = 'flex';
+  }
+
+  // initial load
+  loadData();
+>>>>>>> chai-training
 });
 </script>
 

@@ -7,4 +7,38 @@ use Illuminate\Database\Eloquent\Model;
 class LeaveRequest extends Model
 {
     protected $primaryKey = 'leave_request_id';
+<<<<<<< HEAD
+=======
+
+    protected $fillable = [
+        'employee_id',
+        'leave_type_id',
+        'start_date',
+        'end_date',
+        'total_days',
+        'reason',
+        'leave_status',
+        'approved_by',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date'   => 'date',
+    ];
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id');
+    }
+
+    public function leaveType()
+    {
+        return $this->belongsTo(LeaveType::class, 'leave_type_id');
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by', 'user_id');
+    }
+>>>>>>> chai-training
 }

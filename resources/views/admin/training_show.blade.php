@@ -75,6 +75,7 @@
                     <p class="detail-subtitle">{{ Str::limit($program->tr_description, 100) }}</p>
                 </div>
                 <div class="training-header-right">
+<<<<<<< HEAD
     {{-- Status Badge --}}
     @if($program->tr_status == 'completed')
         <span class="status-badge status-completed">Completed</span>
@@ -103,6 +104,25 @@
         <i class="fa-solid fa-plus"></i> Enroll Employee
     </button>
 </div>
+=======
+                    @if($program->tr_status == 'completed')
+                        <span class="status-badge status-completed">Completed</span>
+                    @elseif($program->tr_status == 'active')
+                        <span class="status-badge status-active">Ongoing</span>
+                    @else
+                        <span class="status-badge status-planned">Upcoming</span>
+                    @endif
+
+                    {{-- ENROLL BUTTON --}}
+                    <button onclick="openEnrollModal()" class="btn btn-primary" style="background-color: #3b82f6; border: none; cursor: pointer;">
+                        <i class="fa-solid fa-plus"></i> Enroll Employee
+                    </button>
+
+                    <a href="{{ route('admin.training') }}" class="btn btn-secondary">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </a>
+                </div>
+>>>>>>> chai-training
             </div>
 
             <div class="training-meta-grid">

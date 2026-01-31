@@ -7,6 +7,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
+<<<<<<< HEAD
+=======
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+>>>>>>> chai-training
   <style>
     body { background:#f5f7fb; }
     main { padding:28px 32px; }
@@ -79,7 +83,13 @@
             <label>Department</label>
             <select id="dept">
               <option value="">All</option>
+<<<<<<< HEAD
               <option>IT</option><option>HR</option><option>Finance</option><option>Marketing</option>
+=======
+              @foreach($departments as $dept)
+                <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
+              @endforeach
+>>>>>>> chai-training
             </select>
           </div>
           <div>
@@ -171,19 +181,28 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
+<<<<<<< HEAD
     const DATA = [
       {id:'EMP001', name:'John Tan',   dept:'IT',        base:4500, allow:300,  allowItems:[['Transport',100],['Meal',200]], otHrs:6, otRate:20, penalty:50, epfTax:350, last:'2025-11-03'},
       {id:'EMP002', name:'Alicia Wong',dept:'Finance',   base:4200, allow:150,  allowItems:[['Meal',150]],                    otHrs:2, otRate:22, penalty: 0, epfTax:320, last:'2025-11-04'},
       {id:'EMP003', name:'Marcus Lim', dept:'HR',        base:3800, allow:100,  allowItems:[['Transport',100]],               otHrs:0, otRate:18, penalty:90, epfTax:290, last:'2025-11-05'},
       {id:'EMP004', name:'Chen Wei',   dept:'Marketing', base:4000, allow:200,  allowItems:[['Transport',100],['Meal',100]],  otHrs:5, otRate:19, penalty:30, epfTax:305, last:'2025-11-06'},
     ];
+=======
+    const ENDPOINT = "{{ route('admin.payroll.salary.data') }}";
+    let DATA = [];
+>>>>>>> chai-training
     const ADJ = {};
 
     const $ = (s) => document.querySelector(s);
     const tbody = $('#tbl tbody');
     const empSel = $('#adj-emp');
 
+<<<<<<< HEAD
     const money = (n) => Number(n).toLocaleString('en-MY', { minimumFractionDigits:2, maximumFractionDigits:2 });
+=======
+    const money = (n) => Number(n ?? 0).toLocaleString('en-MY', { minimumFractionDigits:2, maximumFractionDigits:2 });
+>>>>>>> chai-training
     const inRange = (d, s, e) => {
       const x = new Date(d);
       if (s && x < new Date(s)) return false;
@@ -191,12 +210,24 @@
       return true;
     };
 
+<<<<<<< HEAD
     DATA.forEach(emp => {
       const opt = document.createElement('option');
       opt.value = emp.id;
       opt.textContent = `${emp.name} (${emp.id}) - ${emp.dept}`;
       empSel.appendChild(opt);
     });
+=======
+    function refillEmpSelect() {
+      empSel.innerHTML = '';
+      DATA.forEach(emp => {
+        const opt = document.createElement('option');
+        opt.value = emp.id;
+        opt.textContent = `${emp.name} (${emp.id}) - ${emp.dept}`;
+        empSel.appendChild(opt);
+      });
+    }
+>>>>>>> chai-training
 
     function calc(e) {
       const a = ADJ[e.id] || {};
@@ -244,6 +275,28 @@
       });
     }
 
+<<<<<<< HEAD
+=======
+    async function loadData() {
+      tbody.innerHTML = '<tr><td colspan="11">Loading...</td></tr>';
+      const params = new URLSearchParams({
+        department: $('#dept').value,
+        start: $('#start').value,
+        end: $('#end').value,
+      });
+      try {
+        const resp = await fetch(`${ENDPOINT}?${params.toString()}`, { headers: { 'Accept': 'application/json' }});
+        if (!resp.ok) throw new Error('Failed to load salaries');
+        const json = await resp.json();
+        DATA = Array.isArray(json.data) ? json.data : [];
+        refillEmpSelect();
+        applyFilters();
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="11">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+>>>>>>> chai-training
     function applyFilters() {
       const d = $('#dept').value;
       const s = $('#start').value;
@@ -252,7 +305,11 @@
       render(rows);
     }
 
+<<<<<<< HEAD
     $('#apply').addEventListener('click', applyFilters);
+=======
+    $('#apply').addEventListener('click', loadData);
+>>>>>>> chai-training
     $('#clear').addEventListener('click', () => {
       $('#dept').value = '';
       $('#start').value = '';
@@ -315,7 +372,11 @@
       modal.style.display = 'flex';
     }
 
+<<<<<<< HEAD
     applyFilters();
+=======
+    loadData();
+>>>>>>> chai-training
   });
   </script>
 </body>

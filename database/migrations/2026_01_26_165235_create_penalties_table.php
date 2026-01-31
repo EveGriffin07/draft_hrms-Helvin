@@ -19,7 +19,11 @@ return new class extends Migration
     $table->decimal('default_amount', 10, 2);
     $table->date('assigned_at');
     $table->date('removed_at')->nullable();
+<<<<<<< HEAD
     $table->enum('status', ['active', 'resolved']);
+=======
+    $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+>>>>>>> chai-training
     $table->timestamps();
 });
     }

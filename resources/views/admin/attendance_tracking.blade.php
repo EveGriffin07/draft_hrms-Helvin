@@ -46,6 +46,10 @@
     .present { background:#dcfce7; color:#166534; }
     .late { background:#fef9c3; color:#854d0e; }
     .absent { background:#fee2e2; color:#991b1b; }
+<<<<<<< HEAD
+=======
+    .leave { background:#e0e7ff; color:#4338ca; }
+>>>>>>> chai-training
 
     .btn-small { padding:6px 10px; font-size:.85rem; border-radius:8px; border:1px solid #d1d5db; background:#fff; cursor:pointer; }
     .btn-view { background:#38bdf8; border-color:#38bdf8; color:#0f172a; }
@@ -87,7 +91,11 @@
         <div class="card"><h3>Total Records</h3><p id="sum-total">0</p></div>
         <div class="card"><h3>Present</h3><p id="sum-present">0</p></div>
         <div class="card"><h3>Late</h3><p id="sum-late">0</p></div>
+<<<<<<< HEAD
         <div class="card"><h3>Absent</h3><p id="sum-absent">0</p></div>
+=======
+        <div class="card"><h3>Absent / Leave</h3><p id="sum-absent">0</p></div>
+>>>>>>> chai-training
       </section>
 
       <!-- Filters + Period controls -->
@@ -102,11 +110,17 @@
             <label for="department">Department</label><br>
             <select id="department">
               <option value="">All</option>
+<<<<<<< HEAD
               <option value="IT">IT</option>
               <option value="HR">HR</option>
               <option value="Finance">Finance</option>
               <option value="Marketing">Marketing</option>
               <option value="Operations">Operations</option>
+=======
+              @foreach($departments as $dept)
+                <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
+              @endforeach
+>>>>>>> chai-training
             </select>
           </div>
 
@@ -114,9 +128,16 @@
             <label for="status">Status</label><br>
             <select id="status">
               <option value="">Any</option>
+<<<<<<< HEAD
               <option value="Present">Present</option>
               <option value="Late">Late</option>
               <option value="Absent">Absent</option>
+=======
+              <option value="present">Present</option>
+              <option value="late">Late</option>
+              <option value="absent">Absent</option>
+              <option value="leave">Leave</option>
+>>>>>>> chai-training
             </select>
           </div>
 
@@ -218,6 +239,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Example: both '/admin/attendance/tracking' and '/admin/attendance/tracking/' normalize the same.
   };
   const here = normPath(location.href);
+<<<<<<< HEAD
+=======
+  const initialStart = "{{ $start ?? '' }}";
+  const initialEnd   = "{{ $end ?? '' }}";
+>>>>>>> chai-training
 
   // Clear any server-side default actives so JS owns it (prevents double highlight)
   groups.forEach(g => {
@@ -303,6 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+<<<<<<< HEAD
   /* ---------- Dummy Data (replace with API/DB later) ---------- */
   // Format: {date:'YYYY-MM-DD', id:'EMP001', name:'John Tan', dept:'IT', in:'09:05', out:'18:00', status:'Late'}
   const DATA = [
@@ -330,6 +357,12 @@ document.addEventListener('DOMContentLoaded', function () {
     {date:'2025-10-28', id:'EMP004', name:'Chen Wei', dept:'Marketing', in:'09:03', out:'18:10', status:'Late'},
     {date:'2025-10-29', id:'EMP002', name:'Alicia Wong', dept:'Finance', in:'08:51', out:'17:45', status:'Present'},
   ];
+=======
+  /* ---------- API-backed data ---------- */
+  const ENDPOINT = "{{ route('admin.attendance.data') }}";
+  let DATA = [];           // Last fetched, already filtered by current form inputs
+  let SUMMARY = { total:0, present:0, late:0, absent:0, leave:0 };
+>>>>>>> chai-training
 
   /* ---------- Utilities ---------- */
   const $ = s => document.querySelector(s);
@@ -372,6 +405,17 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#end').value = ymd(range[1]);
   }
 
+<<<<<<< HEAD
+=======
+  function setInitialRange() {
+    if (initialStart) $('#start').value = initialStart;
+    if (initialEnd) $('#end').value = initialEnd;
+    if (!$('#start').value || !$('#end').value) {
+      setRangeFromView();
+    }
+  }
+
+>>>>>>> chai-training
   /* ---------- Rendering ---------- */
   function renderTable(rows) {
     tbody.innerHTML = '';
@@ -403,6 +447,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+<<<<<<< HEAD
   function updateSummary(rows) {
     $('#sum-total').textContent   = rows.length;
     $('#sum-present').textContent = rows.filter(r => r.status==='Present').length;
@@ -429,6 +474,47 @@ document.addEventListener('DOMContentLoaded', function () {
     renderTable(filtered);
     updateSummary(filtered);
     wireViewButtons(filtered);
+=======
+  function updateSummary() {
+    $('#sum-total').textContent   = SUMMARY.total;
+    $('#sum-present').textContent = SUMMARY.present;
+    $('#sum-late').textContent    = SUMMARY.late;
+    // Absent card also counts approved leave so admins see all non-working cases
+    $('#sum-absent').textContent  = SUMMARY.absent + SUMMARY.leave;
+  }
+
+  /* ---------- Fetch & Filtering ---------- */
+  async function applyFilters() {
+    const btn = document.getElementById('applyFilters');
+    btn.disabled = true;
+    const originalLabel = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading';
+
+    const params = new URLSearchParams({
+      q: $('#search').value.trim(),
+      department: $('#department').value,
+      status: $('#status').value,
+      start: $('#start').value,
+      end: $('#end').value,
+    });
+
+    try {
+      const resp = await fetch(`${ENDPOINT}?${params.toString()}`, { headers: { 'Accept': 'application/json' }});
+      if (!resp.ok) throw new Error('Failed to load attendance data');
+      const json = await resp.json();
+      DATA = Array.isArray(json.data) ? json.data : [];
+      SUMMARY = json.summary || SUMMARY;
+      renderTable(DATA);
+      updateSummary();
+      wireViewButtons();
+    } catch (err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="8">Could not load attendance records. Please try again.</td></tr>`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalLabel;
+    }
+>>>>>>> chai-training
   }
 
   /* ---------- Period Controls ---------- */
@@ -476,13 +562,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const start = document.getElementById('start').value, end = document.getElementById('end').value;
     const rows = DATA.filter(r => r.id===empId && isBetween(r.date, start, end))
                      .sort((a,b)=> a.date.localeCompare(b.date));
+<<<<<<< HEAD
     modalTitle.textContent = `${name} (${empId}) — Attendance`;
     modalChips.innerHTML = `
       <span class="chip"><i class="fa-regular fa-calendar"></i> ${start} → ${end}</span>
+=======
+    modalTitle.textContent = `${name} (${empId}) - Attendance`;
+    modalChips.innerHTML = `
+      <span class="chip"><i class="fa-regular fa-calendar"></i> ${start} -> ${end}</span>
+>>>>>>> chai-training
       <span class="chip"><i class="fa-solid fa-building"></i> ${rows[0]?.dept ?? '-'}</span>
       <span class="chip"><i class="fa-regular fa-circle-check"></i> Present: ${rows.filter(r=>r.status==='Present').length}</span>
       <span class="chip"><i class="fa-solid fa-clock"></i> Late: ${rows.filter(r=>r.status==='Late').length}</span>
       <span class="chip"><i class="fa-solid fa-user-slash"></i> Absent: ${rows.filter(r=>r.status==='Absent').length}</span>
+<<<<<<< HEAD
+=======
+      <span class="chip"><i class="fa-solid fa-umbrella-beach"></i> Leave: ${rows.filter(r=>r.status==='Leave').length}</span>
+>>>>>>> chai-training
     `;
     modalBody.innerHTML = rows.map(r => `
       <tr>
@@ -508,7 +604,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ---------- Init ---------- */
+<<<<<<< HEAD
   setRangeFromView();     // set start/end to current week by default
+=======
+  setInitialRange();      // set start/end to provided dates or current week
+>>>>>>> chai-training
   applyFilters();         // render table + summary
 });
 </script>
