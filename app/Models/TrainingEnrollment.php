@@ -24,7 +24,7 @@ class TrainingEnrollment extends Model
     }
 
     // Relationship: Enrollment belongs to a Training Program
-    public function program()
+    public function training()
     {
         return $this->belongsTo(TrainingProgram::class, 'training_id', 'training_id');
     }

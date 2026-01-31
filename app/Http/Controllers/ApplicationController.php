@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Application;
 use App\Models\JobPost;
 use App\Models\ApplicantProfile;
+// Import User model if needed, though we access it via relationship
+use App\Models\User; 
 
 class ApplicationController extends Controller
 {
@@ -32,7 +34,6 @@ class ApplicationController extends Controller
 
         // ======================================================
         // AUTOMATIC ONBOARDING LOGIC
-        // If status is becoming 'Hired', create the Employee record immediately.
         // ======================================================
         if ($request->status === 'Hired') {
             
@@ -54,7 +55,7 @@ class ApplicationController extends Controller
                     ['created_at' => now(), 'updated_at' => now()]
                 );
 
-                // 3. Generate Employee Code (e.g., EMP-2026001)
+                // 3. Generate Employee Code (e.g., EMP-XXXXXX)
                 $empCode = 'EMP-' . strtoupper(uniqid());
 
                 // 4. Create Employee Record
@@ -69,6 +70,13 @@ class ApplicationController extends Controller
                     'phone'           => $application->applicant->phone,
                     'address'         => $application->applicant->location ?? 'Not Provided',
                 ]);
+
+                // ======================================================
+                // CRITICAL FIX: UPDATE USER ROLE TO EMPLOYEE
+                // ======================================================
+                // This ensures next time they login, they go to Employee Dashboard
+                $user->role = 'employee';
+                $user->save(); 
             }
         }
 
@@ -79,7 +87,7 @@ class ApplicationController extends Controller
         $application->save();
 
         $message = ($request->status === 'Hired') 
-                 ? 'Candidate has been Hired and added to Employee Database!' 
+                 ? 'Candidate has been Hired, User Role updated to Employee, and added to Database!' 
                  : 'Applicant status updated successfully!';
 
         return redirect()->back()->with('success', $message);

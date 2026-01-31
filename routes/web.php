@@ -153,6 +153,18 @@ Route::prefix('admin')->middleware('auth')->group(function () {
          Route::post('/training/enrollment/{id}/update', [TrainingController::class, 'updateEnrollmentStatus'])
          ->name('admin.training.updateStatus');
 
+         // Edit Form
+    Route::get('/training/edit/{id}', [TrainingController::class, 'edit'])
+         ->name('admin.training.edit');
+
+    // Update Action (Save Changes)
+    Route::post('/training/update/{id}', [TrainingController::class, 'update'])
+         ->name('admin.training.update');
+
+    // Delete Action
+    Route::delete('/training/delete/{id}', [TrainingController::class, 'destroy'])
+         ->name('admin.training.delete');
+
     // Onboarding
     Route::get('/onboarding', function () { return view('admin.onboarding_admin'); })->name('admin.onboarding');
     Route::get('/onboarding/add', function () { return view('admin.onboarding_add'); })->name('admin.onboarding.add');

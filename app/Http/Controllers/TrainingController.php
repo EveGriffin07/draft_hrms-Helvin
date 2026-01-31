@@ -151,4 +151,74 @@ class TrainingController extends Controller
 
         return redirect()->back()->with('success', 'Participant status updated successfully!');
     }
+
+    // --- ADD THESE METHODS TO TrainingController.php ---
+
+    // 1. SHOW EDIT FORM
+    public function edit($id)
+    {
+        $program = TrainingProgram::with('department')->findOrFail($id);
+        return view('admin.training_edit', compact('program'));
+    }
+
+    // 2. UPDATE DATABASE
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'trainingTitle' => 'required|string|max:255',
+            'trainerName'   => 'required|string|max:255',
+            'department'    => 'required|string', 
+            'startDate'     => 'required|date',
+            'endDate'       => 'required|date|after_or_equal:startDate',
+            'mode'          => 'required|string',
+            'location'      => 'required|string',
+            'description'   => 'nullable|string',
+        ]);
+
+        $program = TrainingProgram::findOrFail($id);
+
+        // Find department ID again
+        $dept = Department::where('department_name', $request->department)->first();
+        $deptId = $dept ? $dept->department_id : null;
+
+        // Auto-update status based on new dates
+        $today = Carbon::today();
+        $start = Carbon::parse($request->startDate);
+        $end = Carbon::parse($request->endDate);
+        
+        $status = 'planned';
+        if ($today->between($start, $end)) {
+            $status = 'active';
+        } elseif ($today->gt($end)) {
+            $status = 'completed';
+        }
+
+        $program->update([
+            'training_name'  => $request->trainingTitle,
+            'provider'       => $request->trainerName,
+            'department_id'  => $deptId,
+            'start_date'     => $request->startDate,
+            'end_date'       => $request->endDate,
+            'mode'           => $request->mode,
+            'location'       => $request->location,
+            'tr_description' => $request->description,
+            'tr_status'      => $status,
+        ]);
+
+        return redirect()->route('admin.training.show', $id)->with('success', 'Training program updated successfully!');
+    }
+
+    // 3. DELETE PROGRAM
+    public function destroy($id)
+    {
+        $program = TrainingProgram::findOrFail($id);
+
+        // Delete all student enrollments first to prevent Foreign Key Error
+        $program->enrollments()->delete();
+
+        // Now delete the program
+        $program->delete();
+
+        return redirect()->route('admin.training')->with('success', 'Training program deleted successfully.');
+    }
 }

@@ -10,7 +10,7 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login'); // your login.blade.php
+        return view('auth.login'); 
     }
 
     public function login(Request $request)
@@ -21,18 +21,18 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        // 2. Auth::attempt will use email + getAuthPassword() from User model
+        // 2. Attempt Login
         $credentials = [
             'email'    => $request->email,
             'password' => $request->password,
         ];
 
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate(); // prevent session fixation
+            $request->session()->regenerate(); 
 
             $user = Auth::user();
 
-            // 3. Redirect based on role
+            // 3. Redirect based on Role column in `users` table
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }
@@ -41,7 +41,7 @@ class LoginController extends Controller
                 return redirect()->route('employee.dashboard');
             }
 
-            // default: applicant
+            // Default fallback for applicants
             return redirect()->route('applicant.jobs');
         }
 
