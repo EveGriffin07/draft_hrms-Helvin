@@ -38,13 +38,16 @@
           </div>
 
           <div class="form-group">
-            <label>Department <span>*</span></label>
-            <select name="department" required>
-              <option value="HR" {{ ($program->department->department_name ?? '') == 'HR' ? 'selected' : '' }}>Human Resources</option>
-              <option value="IT" {{ ($program->department->department_name ?? '') == 'IT' ? 'selected' : '' }}>Information Technology</option>
-              <option value="Finance" {{ ($program->department->department_name ?? '') == 'Finance' ? 'selected' : '' }}>Finance</option>
-              <option value="Sales" {{ ($program->department->department_name ?? '') == 'Sales' ? 'selected' : '' }}>Sales</option>
-              <option value="Marketing" {{ ($program->department->department_name ?? '') == 'Marketing' ? 'selected' : '' }}>Marketing</option>
+            <label for="department">Department <span>*</span></label>
+            <select id="department" name="department" required>
+              <option value="" disabled selected>Select Department</option>
+
+              {{-- Loop through the database results --}}
+              @foreach($departments as $dept)
+                <option value="{{ $dept->department_name }}" {{ old('department') == $dept->department_name ? 'selected' : '' }}>
+                    {{ $dept->department_name }}
+                </option>
+              @endforeach
             </select>
           </div>
 

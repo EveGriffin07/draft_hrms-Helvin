@@ -58,11 +58,13 @@
             <label for="department">Department <span>*</span></label>
             <select id="department" name="department" required>
               <option value="" disabled selected>Select Department</option>
-              <option value="HR">Human Resources</option>
-              <option value="IT">Information Technology</option>
-              <option value="Finance">Finance</option>
-              <option value="Sales">Sales</option>
-              <option value="Marketing">Marketing</option>
+
+              {{-- Loop through the database results --}}
+              @foreach($departments as $dept)
+                <option value="{{ $dept->department_name }}" {{ old('department') == $dept->department_name ? 'selected' : '' }}>
+                    {{ $dept->department_name }}
+                </option>
+              @endforeach
             </select>
           </div>
 

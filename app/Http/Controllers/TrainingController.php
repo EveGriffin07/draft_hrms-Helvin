@@ -23,9 +23,11 @@ class TrainingController extends Controller
         return view('admin.training_admin', compact('programs', 'total', 'ongoing', 'completed', 'upcoming'));
     }
 
+    // --- UPDATED: Fetch Departments for Dropdown ---
     public function create()
     {
-        return view('admin.training_add');
+        $departments = Department::all(); // Fetch all departments
+        return view('admin.training_add', compact('departments'));
     }
 
     public function store(Request $request)
@@ -41,7 +43,7 @@ class TrainingController extends Controller
             'description'   => 'nullable|string',
         ]);
 
-        // FIX: Using 'department_name' based on your screenshot
+        // Find department by name (since the value in option is the name)
         $dept = Department::where('department_name', $request->department)->first();
         $deptId = $dept ? $dept->department_id : null; 
 
@@ -73,20 +75,15 @@ class TrainingController extends Controller
 
     public function show($id)
     {
-        // 1. Get the program details
-        // Note: I added 'enrollments.employee.user' to get names of existing participants
         $program = TrainingProgram::with(['enrollments.employee.user', 'department'])
-                    ->findOrFail($id);
+                     ->findOrFail($id);
 
-        // 2. Get list of employees who are NOT already enrolled
         $enrolledEmployeeIds = $program->enrollments->pluck('employee_id')->toArray();
         
-        // Fetch employees with their User data
         $potentialTrainees = Employee::with('user')
                              ->whereNotIn('employee_id', $enrolledEmployeeIds)
                              ->where('employee_status', 'active')
                              ->get()
-                             // Sort using the related User's name
                              ->sortBy(function($employee) {
                                  return $employee->user->name ?? '';
                              });
@@ -104,7 +101,7 @@ class TrainingController extends Controller
             'training_id'       => $id,
             'employee_id'       => $request->employee_id,
             'enrollment_date'   => now(),
-            'completion_status' => 'enrolled', // Default status
+            'completion_status' => 'enrolled',
             'remarks'           => null
         ]);
 
@@ -125,8 +122,8 @@ class TrainingController extends Controller
             $events[] = [
                 'title' => $program->training_name . ' (' . $program->mode . ')',
                 'start' => $program->start_date,
-                'end'   => \Carbon\Carbon::parse($program->end_date)->addDay()->format('Y-m-d'), // FullCalendar is exclusive on end dates, so we add 1 day
-                'url'   => route('admin.training.show', $program->training_id), // Click to go to details
+                'end'   => \Carbon\Carbon::parse($program->end_date)->addDay()->format('Y-m-d'),
+                'url'   => route('admin.training.show', $program->training_id),
                 'backgroundColor' => $color,
                 'borderColor' => $color,
             ];
@@ -152,16 +149,14 @@ class TrainingController extends Controller
         return redirect()->back()->with('success', 'Participant status updated successfully!');
     }
 
-    // --- ADD THESE METHODS TO TrainingController.php ---
-
-    // 1. SHOW EDIT FORM
+    // --- UPDATED: Fetch Departments for Edit Dropdown too ---
     public function edit($id)
     {
         $program = TrainingProgram::with('department')->findOrFail($id);
-        return view('admin.training_edit', compact('program'));
+        $departments = Department::all(); // Fetch all departments for the edit list
+        return view('admin.training_edit', compact('program', 'departments'));
     }
 
-    // 2. UPDATE DATABASE
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -177,11 +172,9 @@ class TrainingController extends Controller
 
         $program = TrainingProgram::findOrFail($id);
 
-        // Find department ID again
         $dept = Department::where('department_name', $request->department)->first();
         $deptId = $dept ? $dept->department_id : null;
 
-        // Auto-update status based on new dates
         $today = Carbon::today();
         $start = Carbon::parse($request->startDate);
         $end = Carbon::parse($request->endDate);
@@ -208,7 +201,6 @@ class TrainingController extends Controller
         return redirect()->route('admin.training.show', $id)->with('success', 'Training program updated successfully!');
     }
 
-    // 3. DELETE PROGRAM
     public function destroy($id)
     {
         $program = TrainingProgram::findOrFail($id);

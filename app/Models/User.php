@@ -25,7 +25,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',    // Added this so the Seeder can set 'admin'
+        'role',
+        'avatar_path',    // Added this so the Seeder can set 'admin'
     ];
 
     /**

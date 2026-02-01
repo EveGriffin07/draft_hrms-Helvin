@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Profile - HRMS</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
@@ -12,14 +11,13 @@
 
 <body>
 
-  <!-- Header -->
   <header>
     <div class="title">Web-Based HRMS</div>
     <div class="user-info">
-    <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
-        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
-    </a>
-</div>
+      <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
+        <i class="fa-regular fa-bell"></i> &nbsp; {{ Auth::user()->name }}
+      </a>
+    </div>
   </header>
 
   <div class="container">
@@ -32,109 +30,147 @@
       <h2>My Profile</h2>
       <p class="subtitle">View and update your personal information.</p>
 
-      <div class="profile-container">
-
-        <!-- LEFT: Avatar + Summary -->
-        <div class="profile-sidebar">
-          
-          <div class="avatar-wrapper">
-            <img src="https://via.placeholder.com/150" class="avatar-preview">
-          </div>
-
-          <button class="btn-upload">
-            <i class="fa-solid fa-image"></i> Change Photo
-          </button>
-
-          <p class="avatar-note">JPG or PNG • Max 2MB</p>
-
-          <h3 class="profile-name">HR Admin</h3>
-          <p class="profile-role">Human Resources Department</p>
-
-          <div class="profile-stats">
-              <div class="stat">
-                  <span class="num">12</span>
-                  <span class="label">Announcements</span>
-              </div>
-              <div class="stat">
-                  <span class="num">48</span>
-                  <span class="label">Employees</span>
-              </div>
-              <div class="stat">
-                  <span class="num">126</span>
-                  <span class="label">Logins</span>
-              </div>
-          </div>
-
+      {{-- Success Message --}}
+      @if(session('success'))
+        <div style="background: #dcfce7; color: #166534; padding: 12px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bbf7d0;">
+            <i class="fa-solid fa-check-circle"></i> {{ session('success') }}
         </div>
+      @endif
 
-        <!-- RIGHT SIDE: EDIT FORM -->
-        <div class="profile-content">
+      {{-- Validation Errors --}}
+      @if($errors->any())
+        <div style="background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #fecaca;">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>• {{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+      @endif
 
-          <form action="#" method="POST">
-            @csrf
+      {{-- Form Start (Note: enctype is required for file upload) --}}
+      <form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data">
+        @csrf
 
-            {{-- PERSONAL INFO --}}
+        <div class="profile-container">
+
+          <div class="profile-sidebar">
+            
+            <div class="avatar-wrapper">
+              {{-- Check if user has avatar, otherwise show default --}}
+              <img src="{{ $user->avatar_path ? asset('storage/' . $user->avatar_path) : asset('images/default-avatar.png') }}" 
+                   class="avatar-preview" 
+                   id="avatarPreview"
+                   alt="Profile Avatar">
+            </div>
+
+            {{-- Hidden File Input --}}
+            <input type="file" name="avatar" id="avatarInput" style="display: none;" accept="image/*">
+
+            {{-- Button triggers the hidden input --}}
+            <button class="btn-upload" type="button" onclick="document.getElementById('avatarInput').click()">
+              <i class="fa-solid fa-image"></i> Change Photo
+            </button>
+
+            <p class="avatar-note">JPG or PNG • Max 2MB</p>
+
+            <h3 class="profile-name">{{ $user->name }}</h3>
+            <p class="profile-role">{{ ucfirst($user->role) }}</p>
+
+            <div class="profile-stats">
+                <div class="stat">
+                    <span class="num">{{ $stats['announcements'] }}</span>
+                    <span class="label">Announcements</span>
+                </div>
+                <div class="stat">
+                    <span class="num">{{ $stats['employees'] }}</span>
+                    <span class="label">Employees</span>
+                </div>
+                <div class="stat">
+                    <span class="num">{{ $stats['users'] }}</span>
+                    <span class="label">Total Users</span>
+                </div>
+            </div>
+
+          </div>
+
+          <div class="profile-content">
+
             <h3 class="section-title"><i class="fa-solid fa-user"></i> Personal Information</h3>
 
             <div class="form-row">
               <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" value="HR Admin">
+                <input type="text" name="name" value="{{ old('name', $user->name) }}" required>
               </div>
 
               <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" value="hradmin@example.com">
+                <input type="email" name="email" value="{{ old('email', $user->email) }}" required>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
                 <label>Phone Number</label>
-                <input type="text" value="+60 12-345 6789">
+                {{-- Show phone if employee record exists --}}
+                <input type="text" name="phone" value="{{ old('phone', $user->employee->phone ?? '') }}" placeholder="+60...">
               </div>
 
               <div class="form-group">
                 <label>Department</label>
-                <input type="text" value="Human Resources">
+                {{-- Department is read-only --}}
+                <input type="text" value="{{ $user->employee->department->department_name ?? 'Not Assigned' }}" readonly style="background-color: #f3f4f6; cursor: not-allowed;">
               </div>
             </div>
 
-            {{-- ACCOUNT SECURITY --}}
             <h3 class="section-title"><i class="fa-solid fa-lock"></i> Account Security</h3>
 
             <div class="form-row">
               <div class="form-group">
-                <label>Username</label>
-                <input type="text" value="hr_admin">
+                <label>Username (Role)</label>
+                <input type="text" value="{{ $user->role }}" readonly style="background-color: #f3f4f6;">
               </div>
 
               <div class="form-group">
                 <label>New Password</label>
-                <input type="password" placeholder="Leave blank to keep current password">
+                <input type="password" name="password" placeholder="Leave blank to keep current">
               </div>
 
               <div class="form-group">
                 <label>Confirm Password</label>
-                <input type="password">
+                <input type="password" name="password_confirmation">
               </div>
             </div>
 
             <div class="form-actions">
-              <button class="btn-save"><i class="fa-solid fa-save"></i> Save Changes</button>
+              <button type="submit" class="btn-save"><i class="fa-solid fa-save"></i> Save Changes</button>
             </div>
 
-          </form>
+          </div>
 
         </div>
-
-      </div>
+      </form>
 
       <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
 
     </main>
 
   </div>
+
+  {{-- Script to preview image immediately after selection --}}
+  <script>
+    document.getElementById('avatarInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('avatarPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+  </script>
 
 </body>
 </html>

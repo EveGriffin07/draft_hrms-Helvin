@@ -230,7 +230,9 @@
   </header>
 
   <div class="container dashboard-shell">
-    @include('partials.sidebar')
+    
+    {{-- FIX: Point to the new sidebar file --}}
+    @include('employee.layout.sidebar')
 
     <main class="dashboard-main">
       <div class="hero">
@@ -498,6 +500,9 @@
         btn.setAttribute('tabindex','0');
 
         const doToggle = (e) => {
+          // If this is a direct link (like Dashboard), let it navigate
+          if (btn.classList.contains('sidebar-quick-link')) return;
+
           e.preventDefault();
           const group = btn.closest('.sidebar-group');
           const isOpen = group.classList.contains('open');
@@ -538,7 +543,6 @@
             sec.classList.toggle('active', active);
             if (active) matched = true;
           });
-          // if no section matches, keep buttons highlighted but do not change visibility
           if (!matched) {
             reportSections.forEach(sec => sec.classList.remove('active'));
           }

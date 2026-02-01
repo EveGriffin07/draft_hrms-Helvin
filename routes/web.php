@@ -10,6 +10,9 @@ use App\Http\Controllers\JobPostController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ApplicantJobController;
 use App\Http\Controllers\TrainingController; 
+use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\EmployeeTrainingController;
+use App\Http\Controllers\KpiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,7 +85,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/recruitment/store', [JobPostController::class, 'store'])
          ->name('admin.recruitment.store');
 
-         Route::post('/recruitment/update/{id}', [JobPostController::class, 'update'])
+    Route::post('/recruitment/update/{id}', [JobPostController::class, 'update'])
          ->name('admin.recruitment.update');
 
     // Applicants
@@ -98,7 +101,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::post('/recruitment/applicants/{id}/status', [ApplicationController::class, 'updateStatus'])
          ->name('admin.applicants.updateStatus');
 
-         // Edit Job Form
+    Route::post('/recruitment/applicants/{id}/onboard', [ApplicationController::class, 'onboard'])
+         ->name('admin.applicants.onboard');
+
+    // Edit Job Form
     Route::get('/recruitment/edit/{id}', [JobPostController::class, 'edit'])
          ->name('admin.recruitment.edit');
          
@@ -110,9 +116,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::delete('/recruitment/delete/{id}', [JobPostController::class, 'destroy'])
          ->name('admin.recruitment.destroy');
 
-         Route::post('/recruitment/applicants/{id}/onboard', [ApplicationController::class, 'onboard'])
-         ->name('admin.applicants.onboard');
-
     /*
     |--------------------------------------------------------------------------
     | Other Modules (Appraisal, Training, Etc.)
@@ -120,62 +123,85 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     */
     
     // Appraisal
-    Route::get('/appraisal', function () { return view('admin.appraisal_admin'); })->name('admin.appraisal');
-    Route::get('/appraisal/add-kpi', function () { return view('admin.appraisal_add_kpi'); })->name('admin.appraisal.add-kpi');
-    Route::get('/appraisal/reviews', function () { return view('admin.appraisal_reviews'); })->name('admin.appraisal.reviews');
-    Route::get('/appraisal/employee-kpis', function () { return view('admin.appraisal_kpi_employee'); })->name('admin.appraisal.employee-kpis');
-    Route::get('/appraisal/employee-kpi-list', function () { return view('admin.appraisal_kpi_employee_list'); })->name('admin.appraisal.employee-kpi-list');
-    Route::view('/admin/appraisal/department-kpi', 'admin.appraisal_department_kpi')->name('admin.appraisal.department-kpi');
+    Route::get('/appraisal', [KpiController::class, 'index'])->name('admin.appraisal');
 
-    // Training
-    // List All
-    Route::get('/training', [TrainingController::class, 'index'])
-         ->name('admin.training');
+    // 2. Add KPI
+    Route::get('/appraisal/add-kpi', [KpiController::class, 'create'])->name('admin.appraisal.add-kpi');
+    Route::post('/appraisal/store-kpi', [KpiController::class, 'store'])->name('admin.appraisal.store');
 
-    // Create New (Form)
-    Route::get('/training/add', [TrainingController::class, 'create'])
-         ->name('admin.training.add');
+    // 3. Employee List (Select Employee)
+    Route::get('/appraisal/employee-list', [KpiController::class, 'employeeList'])->name('admin.appraisal.employee-kpi-list');
 
-    // Store New (Action)
-    Route::post('/training/store', [TrainingController::class, 'store'])
-         ->name('admin.training.store');
+    // 4. View Specific Employee KPIs (The Detail Page)
+    Route::get('/appraisal/employee-kpis', [KpiController::class, 'showEmployeeKpis'])->name('admin.appraisal.employee-kpis');
 
-    // Show Details
-    Route::get('/training/show/{id}', [TrainingController::class, 'show'])
-         ->name('admin.training.show');
+    Route::get('/appraisal/department-kpi/{id}', [KpiController::class, 'showDepartmentKpi'])
+     ->name('admin.appraisal.department-kpi');
+    // 5. Update KPI (Review Modal)
+    Route::post('/appraisal/update-score/{id}', [KpiController::class, 'updateScore'])->name('admin.appraisal.update-score');
+Route::get('/employee/my-kpis', [KpiController::class, 'myKpis'])->name('employee.kpis');
 
-         Route::get('/training/events', [TrainingController::class, 'getEvents'])
-         ->name('admin.training.events');
+// Self Evaluation Page
+    Route::get('/employee/appraisal/reviews', [KpiController::class, 'selfEvaluationList'])
+         ->name('employee.kpis.self-eval');
+    
+    // Submit Evaluation Logic
+    Route::post('/employee/appraisal/reviews/submit/{id}', [KpiController::class, 'submitSelfEval'])
+         ->name('employee.kpis.store-eval');
+    // Training (Admin Side)
+    Route::get('/training', [TrainingController::class, 'index'])->name('admin.training');
+    Route::get('/training/add', [TrainingController::class, 'create'])->name('admin.training.add');
+    Route::post('/training/store', [TrainingController::class, 'store'])->name('admin.training.store');
+    Route::get('/training/show/{id}', [TrainingController::class, 'show'])->name('admin.training.show');
+    Route::get('/training/events', [TrainingController::class, 'getEvents'])->name('admin.training.events');
+    Route::post('/training/{id}/enroll', [TrainingController::class, 'storeEnrollment'])->name('admin.training.enroll');
+    Route::post('/training/enrollment/{id}/update', [TrainingController::class, 'updateEnrollmentStatus'])->name('admin.training.updateStatus');
+    Route::get('/training/edit/{id}', [TrainingController::class, 'edit'])->name('admin.training.edit');
+    Route::post('/training/update/{id}', [TrainingController::class, 'update'])->name('admin.training.update');
+    Route::delete('/training/delete/{id}', [TrainingController::class, 'destroy'])->name('admin.training.delete');
 
-         Route::post('/training/{id}/enroll', [TrainingController::class, 'storeEnrollment'])
-         ->name('admin.training.enroll');
+    /*
+    |--------------------------------------------------------------------------
+    | Onboarding (CORRECTED)
+    |--------------------------------------------------------------------------
+    */
+    // 1. Dashboard (Lists all onboardings + Stats)
+    Route::get('/onboarding', [OnboardingController::class, 'index'])
+         ->name('admin.onboarding');
 
-         Route::post('/training/enrollment/{id}/update', [TrainingController::class, 'updateEnrollmentStatus'])
-         ->name('admin.training.updateStatus');
+    // 2. Checklist Details
+    Route::get('/onboarding/checklist/{id}', [OnboardingController::class, 'showChecklist'])
+         ->name('admin.onboarding.checklist.show');
+    
+    // 3. Add New (Static View)
+    Route::get('/onboarding/add', [OnboardingController::class, 'create'])
+         ->name('admin.onboarding.add');
 
-         // Edit Form
-    Route::get('/training/edit/{id}', [TrainingController::class, 'edit'])
-         ->name('admin.training.edit');
+     Route::get('/onboarding/add', [OnboardingController::class, 'create'])
+     ->name('admin.onboarding.add');
 
-    // Update Action (Save Changes)
-    Route::post('/training/update/{id}', [TrainingController::class, 'update'])
-         ->name('admin.training.update');
+     // 4. Store New (Form Submission) - NEW LINE
+     Route::post('/onboarding/store', [OnboardingController::class, 'store'])
+     ->name('admin.onboarding.store');
+     
+     Route::get('/employee/onboarding', [App\Http\Controllers\EmployeeOnboardingController::class, 'index'])
+         ->name('employee.onboarding.index');
 
-    // Delete Action
-    Route::delete('/training/delete/{id}', [TrainingController::class, 'destroy'])
-         ->name('admin.training.delete');
-
-    // Onboarding
-    Route::get('/onboarding', function () { return view('admin.onboarding_admin'); })->name('admin.onboarding');
-    Route::get('/onboarding/add', function () { return view('admin.onboarding_add'); })->name('admin.onboarding.add');
-    Route::get('/onboarding/checklist', function () { return view('admin.onboarding_checklist'); })->name('admin.onboarding.checklist');
+    Route::post('/employee/onboarding/task/{id}/complete', [App\Http\Controllers\EmployeeOnboardingController::class, 'completeTask'])
+         ->name('employee.onboarding.complete');
 
     // Assistant & Reports
     Route::get('/assistant', function () { return view('admin.assistant'); })->name('admin.assistant');
     Route::get('/reports', function () { return view('admin.reports'); })->name('admin.reports.dashboard');
 
     // Profile
-    Route::get('/profile', function () { return view('admin.profile'); })->name('admin.profile');
+    Route::get('/profile', [AdminController::class, 'profile'])
+         ->name('admin.profile');
+
+    // Profile (Update)
+    Route::post('/profile/update', [AdminController::class, 'updateProfile'])
+         ->name('admin.profile.update');
+    
     
     // Employee Management
     Route::get('/employee/list', function () { return view('admin.employee_list'); })->name('admin.employee.list');
@@ -207,39 +233,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 | APPLICANT ROUTES (User Side)
 |--------------------------------------------------------------------------
 */
-// 2. THIS IS THE CORRECT BLOCK using the Controller
 Route::prefix('applicant')->middleware('auth')->group(function () {
 
-    // Job List (Uses Controller to get $jobs)
-    Route::get('/jobs', [ApplicantJobController::class, 'index'])
-         ->name('applicant.jobs');
-
-    // Job Details (Uses Controller to get $job)
-    Route::get('/jobs/{id}', [ApplicantJobController::class, 'show'])
-         ->name('applicant.jobs.show');
-
-    // Apply Form (Uses Controller to get $job)
-    Route::get('/jobs/{id}/apply', [ApplicantJobController::class, 'applyForm'])
-         ->name('applicant.jobs.apply');
-
-    // Submit Application (POST)
-    Route::post('/jobs/{id}/apply', [ApplicantJobController::class, 'submitApplication'])
-         ->name('applicant.jobs.submit');
-
-    // My Applications 
-    Route::get('/applications', [ApplicantJobController::class, 'myApplications'])
-         ->name('applicant.applications');
-
-    // Profile
-    Route::get('/profile', [ApplicantJobController::class, 'profile'])
-         ->name('applicant.profile');
-
-    // Profile (Update)
-    Route::post('/profile/update', [ApplicantJobController::class, 'updateProfile'])
-         ->name('applicant.profile.update');
-
-         Route::get('/profile/resume/delete', [ApplicantJobController::class, 'deleteResume'])
-         ->name('applicant.resume.delete');
+    Route::get('/jobs', [ApplicantJobController::class, 'index'])->name('applicant.jobs');
+    Route::get('/jobs/{id}', [ApplicantJobController::class, 'show'])->name('applicant.jobs.show');
+    Route::get('/jobs/{id}/apply', [ApplicantJobController::class, 'applyForm'])->name('applicant.jobs.apply');
+    Route::post('/jobs/{id}/apply', [ApplicantJobController::class, 'submitApplication'])->name('applicant.jobs.submit');
+    Route::get('/applications', [ApplicantJobController::class, 'myApplications'])->name('applicant.applications');
+    Route::get('/profile', [ApplicantJobController::class, 'profile'])->name('applicant.profile');
+    Route::post('/profile/update', [ApplicantJobController::class, 'updateProfile'])->name('applicant.profile.update');
+    Route::get('/profile/resume/delete', [ApplicantJobController::class, 'deleteResume'])->name('applicant.resume.delete');
 
 });
 
@@ -250,6 +253,16 @@ Route::prefix('applicant')->middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
+    
+    // Dashboard
     Route::get('/employee/dashboard', [EmployeeController::class, 'index'])
          ->name('employee.dashboard');
+
+    // Training Plans
+    Route::get('/employee/training/my-plans', [EmployeeTrainingController::class, 'index'])
+         ->name('employee.training.index');
+
+    // Training Details
+    Route::get('/employee/training/{id}', [EmployeeTrainingController::class, 'show'])
+         ->name('employee.training.show');
 });
