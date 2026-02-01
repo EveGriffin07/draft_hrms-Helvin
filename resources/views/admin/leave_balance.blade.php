@@ -6,10 +6,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
-<<<<<<< HEAD
-=======
+
 <meta name="csrf-token" content="{{ csrf_token() }}">
->>>>>>> chai-training
 <style>
   .box{background:#fff;border-radius:10px;padding:16px;margin-bottom:16px}
   table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}
@@ -56,14 +54,11 @@
         <div>
           <label>Department</label>
           <select id="dept">
-<<<<<<< HEAD
-            <option value="">All</option><option>IT</option><option>HR</option><option>Finance</option><option>Marketing</option>
-=======
+
             <option value="">All</option>
             @foreach($departments as $dept)
               <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
             @endforeach
->>>>>>> chai-training
           </select>
         </div>
         <div style="align-self:end">
@@ -120,10 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ==========================================
      SIDEBAR — single active, single open
      ========================================== */
-<<<<<<< HEAD
-=======
+
   const ENDPOINT = "{{ route('admin.leave.balance.data') }}";
->>>>>>> chai-training
   const groups  = document.querySelectorAll('.sidebar-group');
   const toggles = document.querySelectorAll('.sidebar-toggle');
   const links   = document.querySelectorAll('.submenu a');
@@ -219,185 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ==========================================
-     LEAVE BALANCE TRACKING (unchanged)
-     ========================================== */
-  const DATA = [
-    {
-      empId:'EMP001', name:'John Tan',   dept:'IT',
-      annual:{total:14, used:2}, sick:{total:8, used:2}, unpaid:{total:5, used:0},
-      lastUpdated:'2025-11-03T10:21:00', validUntil:'2025-12-31'
-    },
-    {
-      empId:'EMP002', name:'Alicia Wong',dept:'Finance',
-      annual:{total:12, used:2}, sick:{total:8, used:1}, unpaid:{total:3, used:1},
-      lastUpdated:'2025-11-04T09:02:00', validUntil:'2025-12-31'
-    },
-    {
-      empId:'EMP003', name:'Marcus Lim', dept:'HR',
-      annual:{total:16, used:2}, sick:{total:7, used:2}, unpaid:{total:2, used:0},
-      lastUpdated:'2025-11-05T15:45:00', validUntil:'2025-12-31'
-    },
-    {
-      empId:'EMP004', name:'Chen Wei',   dept:'Marketing',
-      annual:{total:10, used:2}, sick:{total:10, used:2}, unpaid:{total:4, used:2},
-      lastUpdated:'2025-11-06T11:10:00', validUntil:'2025-12-31'
-    },
-  ];
-  let rows=[...DATA];
-  const EDIT = {}; // id => { annualRemain, sickRemain, unpaidRemain }
-
-  const $=s=>document.querySelector(s), tbody=document.querySelector('#tbl tbody');
-
-  const remain = (x)=> Math.max(0, x.total - x.used);
-  const clampRemain = (r, total)=> Math.min(Math.max(0, r), total);
-
-  function render(){
-    tbody.innerHTML='';
-    rows.forEach(r=>{
-      const id = r.empId;
-      const isEditing = Object.prototype.hasOwnProperty.call(EDIT, id);
-
-      const annRem = isEditing ? EDIT[id].annualRemain : remain(r.annual);
-      const sickRem= isEditing ? EDIT[id].sickRemain   : remain(r.sick);
-      const unpRem = isEditing ? EDIT[id].unpaidRemain : remain(r.unpaid);
-
-      const tr=document.createElement('tr');
-      tr.innerHTML=`
-        <td>
-          <strong>${r.name}</strong><br>
-          <span class="muted">${r.empId}</span><br>
-          <span class="muted">Last Updated: ${new Date(r.lastUpdated).toLocaleString()}</span>
-        </td>
-        <td>${r.dept}</td>
-
-        <td>
-          ${isEditing
-            ? `<input type="number" min="0" step="0.5" value="${annRem}" data-id="${id}" data-f="annualRemain"> / <span class="muted">${r.annual.total}</span>`
-            : `<strong>${annRem}</strong> <span class="muted">/ ${r.annual.total}</span>`
-          }
-        </td>
-
-        <td>
-          ${isEditing
-            ? `<input type="number" min="0" step="0.5" value="${sickRem}" data-id="${id}" data-f="sickRemain"> / <span class="muted">${r.sick.total}</span>`
-            : `<strong>${sickRem}</strong> <span class="muted">/ ${r.sick.total}</span>`
-          }
-        </td>
-
-        <td>
-          ${isEditing
-            ? `<input type="number" min="0" step="0.5" value="${unpRem}" data-id="${id}" data-f="unpaidRemain"> / <span class="muted">${r.unpaid.total}</span>`
-            : `<strong>${unpRem}</strong> <span class="muted">/ ${r.unpaid.total}</span>`
-          }
-        </td>
-
-        <td><button class="btn-ghost view" data-id="${id}"><i class="fa-solid fa-eye"></i> View</button></td>
-
-        <td>
-          ${isEditing
-            ? `<div class="actions">
-                 <button class="btn" data-act="save" data-id="${id}"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-                 <button class="btn-ghost" data-act="cancel" data-id="${id}"><i class="fa-solid fa-rotate-left"></i> Cancel</button>
-               </div>`
-            : `<button class="btn-ghost" data-act="edit" data-id="${id}"><i class="fa-solid fa-pen-to-square"></i> Edit</button>`
-          }
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-    if(!rows.length) tbody.innerHTML='<tr><td colspan="7">No employees.</td></tr>';
-  }
-
-  function filter(){
-    const q=$('#q').value.trim().toLowerCase(), d=$('#dept').value;
-    rows = DATA.filter(r => (!q || r.empId.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)) && (!d || r.dept===d));
-    render();
-  }
-  $('#apply').addEventListener('click', filter);
-  $('#clear').addEventListener('click', ()=>{ $('#q').value=''; $('#dept').value=''; filter(); });
-
-  tbody.addEventListener('click', (e)=>{
-    const btn = e.target.closest('button[data-act]');
-    if (btn){
-      const id = btn.dataset.id, act = btn.dataset.act;
-      if (act==='edit'){
-        const row = DATA.find(x=>x.empId===id);
-        EDIT[id] = {
-          annualRemain: remain(row.annual),
-          sickRemain:   remain(row.sick),
-          unpaidRemain: remain(row.unpaid),
-        };
-        render();
-      } else if (act==='cancel'){
-        delete EDIT[id];
-        render();
-      } else if (act==='save'){
-        const row = DATA.find(x=>x.empId===id);
-        const buf = EDIT[id];
-        if (!buf) return;
-        buf.annualRemain = clampRemain(Number(buf.annualRemain||0), row.annual.total);
-        buf.sickRemain   = clampRemain(Number(buf.sickRemain||0),   row.sick.total);
-        buf.unpaidRemain = clampRemain(Number(buf.unpaidRemain||0), row.unpaid.total);
-        row.annual.used = row.annual.total - buf.annualRemain;
-        row.sick.used   = row.sick.total   - buf.sickRemain;
-        row.unpaid.used = row.unpaid.total - buf.unpaidRemain;
-        row.lastUpdated = new Date().toISOString();
-        delete EDIT[id];
-        filter();
-      }
-      return;
-    }
-
-    const view = e.target.closest('.view');
-    if (view){
-      openModal(view.dataset.id);
-    }
-  });
-
-  tbody.addEventListener('input', (e)=>{
-    if (e.target.matches('input[type="number"]')){
-      const id=e.target.dataset.id, f=e.target.dataset.f;
-      if (!EDIT[id]) return;
-      EDIT[id][f] = e.target.value;
-    }
-  });
-
-  // modal
-  const modal = document.getElementById('modal');
-  const meta = document.getElementById('meta');
-  const breakdown = document.getElementById('breakdown');
-  const validity = document.getElementById('validity');
-  document.getElementById('close').addEventListener('click', ()=> modal.style.display='none');
-
-  function openModal(empId){
-    const r = DATA.find(x=>x.empId===empId);
-    const A = r.annual, S = r.sick, U = r.unpaid;
-    meta.innerHTML = `<strong>${r.name}</strong> (${r.empId}) — ${r.dept}<br>
-      <span class="muted">Last Updated: ${new Date(r.lastUpdated).toLocaleString()}</span>`;
-    breakdown.innerHTML = `
-      <tr><td style="padding:8px;">Annual</td>
-          <td style="padding:8px;text-align:right">${A.total.toFixed(1)}</td>
-          <td style="padding:8px;text-align:right">${A.used.toFixed(1)}</td>
-          <td style="padding:8px;text-align:right"><strong>${(A.total-A.used).toFixed(1)}</strong></td></tr>
-      <tr><td style="padding:8px;">Sick</td>
-          <td style="padding:8px;text-align:right">${S.total.toFixed(1)}</td>
-          <td style="padding:8px;text-align:right">${S.used.toFixed(1)}</td>
-          <td style="padding:8px;text-align:right"><strong>${(S.total-S.used).toFixed(1)}</strong></td></tr>
-      <tr><td style="padding:8px;">Unpaid</td>
-          <td style="padding:8px;text-align:right">${U.total.toFixed(1)}</td>
-          <td style="padding:8px;text-align:right">${U.used.toFixed(1)}</td>
-          <td style="padding:8px;text-align:right"><strong>${(U.total-U.used).toFixed(1)}</strong></td></tr>
-    `;
-    validity.innerHTML = `Balances valid until <strong>${new Date(r.validUntil).toLocaleDateString()}</strong>.`;
-    modal.style.display = 'flex';
-  }
-
-  // init
-  filter();
-<<<<<<< HEAD
-=======
-  /* ================== Leave balance logic ================== */
+/* ================== Leave balance logic ================== */
   const $ = (s)=>document.querySelector(s);
   const tbody = $('#tbl tbody');
 
@@ -482,9 +297,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // initial load
   loadData();
->>>>>>> chai-training
 });
 </script>
 
 </body>
 </html>
+
+

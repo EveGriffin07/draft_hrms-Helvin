@@ -6,10 +6,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
-<<<<<<< HEAD
-=======
+
 <meta name="csrf-token" content="{{ csrf_token() }}">
->>>>>>> chai-training
 <style>
   .box{background:#fff;border-radius:10px;padding:16px;margin-bottom:16px}
   table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}
@@ -63,27 +61,21 @@
         <div>
           <label>Department</label>
           <select id="dept">
-<<<<<<< HEAD
-            <option value="">All</option><option>IT</option><option>HR</option><option>Finance</option><option>Marketing</option>
-=======
+
             <option value="">All</option>
             @foreach($departments as $dept)
               <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
             @endforeach
->>>>>>> chai-training
           </select>
         </div>
         <div>
           <label>Type</label>
           <select id="type">
-<<<<<<< HEAD
-            <option value="">All</option><option>Annual</option><option>Sick</option><option>Unpaid</option><option>Emergency</option>
-=======
+
             <option value="">All</option>
             @foreach($leaveTypes as $t)
               <option value="{{ $t->leave_type_id }}">{{ $t->leave_name }}</option>
             @endforeach
->>>>>>> chai-training
           </select>
         </div>
         <div>
@@ -119,11 +111,8 @@
         </thead>
         <tbody></tbody>
       </table>
-<<<<<<< HEAD
-      <p class="muted" style="margin-top:8px">Front-end demo only. Hook up a controller to persist changes.</p>
-=======
+
       <p class="muted" style="margin-top:8px">Changes persist via the admin API.</p>
->>>>>>> chai-training
     </div>
 
     <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
@@ -132,14 +121,12 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-<<<<<<< HEAD
-=======
+
   const ENDPOINT_LIST   = "{{ route('admin.leave.request.data') }}";
   const ENDPOINT_STATUS = (id) => "{{ route('admin.leave.request.status', ['leave' => '__ID__']) }}".replace('__ID__', id);
   const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
   let ROWS = [];
 
->>>>>>> chai-training
   /* ========= Sidebar: single active, single open, persistence ========= */
   const groups  = document.querySelectorAll('.sidebar-group');
   const toggles = document.querySelectorAll('.sidebar-toggle');
@@ -236,8 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter' || e.key === ' ') doToggle(e);
     });
   });
-<<<<<<< HEAD
-=======
+
 
   /* ===== Leave logic ===== */
   const $ = (s)=>document.querySelector(s);
@@ -366,9 +352,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // initial load
   loadData();
->>>>>>> chai-training
 });
 </script>
 
 </body>
 </html>
+

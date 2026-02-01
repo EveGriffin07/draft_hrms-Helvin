@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class LeaveRequest extends Model
 {
     protected $primaryKey = 'leave_request_id';
-<<<<<<< HEAD
-=======
 
     protected $fillable = [
         'employee_id',
@@ -40,5 +38,4 @@ class LeaveRequest extends Model
     {
         return $this->belongsTo(User::class, 'approved_by', 'user_id');
     }
->>>>>>> chai-training
 }

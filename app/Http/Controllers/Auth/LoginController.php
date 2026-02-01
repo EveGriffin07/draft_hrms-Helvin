@@ -10,11 +10,7 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
-<<<<<<< HEAD
-        return view('auth.login'); 
-=======
-        return view('auth.login'); // your login.blade.php
->>>>>>> chai-training
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -25,30 +21,19 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-<<<<<<< HEAD
         // 2. Attempt Login
-=======
-        // 2. Auth::attempt will use email + getAuthPassword() from User model
->>>>>>> chai-training
         $credentials = [
             'email'    => $request->email,
             'password' => $request->password,
         ];
 
         if (Auth::attempt($credentials)) {
-<<<<<<< HEAD
-            $request->session()->regenerate(); 
-
-            $user = Auth::user();
-
-            // 3. Redirect based on Role column in `users` table
-=======
             $request->session()->regenerate(); // prevent session fixation
 
             $user = Auth::user();
 
             // 3. Redirect based on role
->>>>>>> chai-training
+            // Redirect based on role
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }
@@ -57,11 +42,7 @@ class LoginController extends Controller
                 return redirect()->route('employee.dashboard');
             }
 
-<<<<<<< HEAD
             // Default fallback for applicants
-=======
-            // default: applicant
->>>>>>> chai-training
             return redirect()->route('applicant.jobs');
         }
 
@@ -78,8 +59,4 @@ class LoginController extends Controller
 
         return redirect()->route('login');
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> chai-training

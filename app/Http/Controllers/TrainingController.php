@@ -151,9 +151,6 @@ class TrainingController extends Controller
 
         return redirect()->back()->with('success', 'Participant status updated successfully!');
     }
-<<<<<<< HEAD
-
-    // --- ADD THESE METHODS TO TrainingController.php ---
 
     // 1. SHOW EDIT FORM
     public function edit($id)
@@ -222,6 +219,4 @@ class TrainingController extends Controller
 
         return redirect()->route('admin.training')->with('success', 'Training program deleted successfully.');
     }
-=======
->>>>>>> chai-training
 }

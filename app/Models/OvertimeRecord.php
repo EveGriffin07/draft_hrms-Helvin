@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class OvertimeRecord extends Model
 {
     protected $primaryKey = 'ot_id';
-<<<<<<< HEAD
-=======
 
     protected $fillable = [
         'employee_id',
@@ -41,5 +39,4 @@ class OvertimeRecord extends Model
     {
         return $this->belongsTo(User::class, 'approved_by', 'user_id');
     }
->>>>>>> chai-training
 }

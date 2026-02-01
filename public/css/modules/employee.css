@@ -202,8 +202,6 @@
   color: #0f172a;
   border-color: #d1d5db;
 }
-<<<<<<< HEAD
-=======
 
 /* Pagination fixes (Laravel tailwind template without tailwind) */
 .employee-page .pagination {
@@ -304,4 +302,3 @@
   width: 12px;
   height: 12px;
 }
->>>>>>> chai-training

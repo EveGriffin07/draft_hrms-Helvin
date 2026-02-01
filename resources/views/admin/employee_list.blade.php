@@ -3,17 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<<<<<<< HEAD
-  <title>Add Employee - HRMS</title>
-=======
+
   <title>Employee Overview - HRMS</title>
->>>>>>> chai-training
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
-<<<<<<< HEAD
-=======
+
   <style>
     /* Page-specific helpers */
     .employee-page .filter-bar { flex-wrap: wrap; gap: 10px; }
@@ -26,54 +22,24 @@
     .muted { color: #94a3b8; font-size: 12px; }
     .table-meta { color: #64748b; font-size: 13px; margin-top: 4px; }
   </style>
->>>>>>> chai-training
 </head>
 
 <body>
   <header>
     <div class="title">Web-Based HRMS</div>
     <div class="user-info">
-<<<<<<< HEAD
-    <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
-        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
-    </a>
-</div>
-=======
+
       <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
         <i class="fa-regular fa-bell"></i> &nbsp; {{ Auth::user()->name ?? 'HR Admin' }}
       </a>
     </div>
->>>>>>> chai-training
   </header>
 
   <div class="container">
     @include('admin.layout.sidebar')
 
     <main class="employee-page">
-<<<<<<< HEAD
-      <div class="breadcrumb">Home > Employee Management > Add Employee</div>
-      <h2>Add New Employee</h2>
-      <p class="subtitle">Register new employees and view overall employee data insights.</p>
 
-      <div class="summary-cards">
-        <div class="card"><h4>Total Employees</h4><p>128</p></div>
-        <div class="card"><h4>Active Employees</h4><p>117</p></div>
-        <div class="card"><h4>Departments</h4><p>8</p></div>
-        <div class="card"><h4>On Leave</h4><p>6</p></div>
-      </div>
-
-      <div class="filter-bar">
-        <input type="text" placeholder="Search employee name..." />
-        <select>
-          <option value="">All Departments</option>
-          <option value="HR">Human Resources</option>
-          <option value="IT">IT Department</option>
-          <option value="Finance">Finance</option>
-          <option value="Marketing">Marketing</option>
-        </select>
-        <button class="btn-primary"><i class="fa-solid fa-filter"></i> Filter</button>
-      </div>
-=======
       <div class="breadcrumb">Home > Employee Management > Employee Overview</div>
       <h2>Employee Overview</h2>
       <p class="subtitle">Live view of every employee record stored in the database.</p>
@@ -118,36 +84,13 @@
           <a class="btn-primary" href="{{ route('admin.employee.add') }}" style="text-decoration:none;"><i class="fa-solid fa-user-plus"></i> Add Employee</a>
         </div>
       </form>
->>>>>>> chai-training
 
       <div class="content-section">
         <h3>Employee List</h3>
         <table>
           <thead>
             <tr>
-<<<<<<< HEAD
-              <th>Name</th><th>Department</th><th>Position</th><th>Status</th><th>Email</th><th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Jane Smith</td><td>Finance</td><td>Accountant</td><td>Active</td><td>jane.smith@hrms.com</td>
-              <td><button class="btn-primary">View Profile</button></td>
-            </tr>
-            <tr>
-              <td>David Lee</td><td>IT Department</td><td>Software Engineer</td><td>Active</td><td>david.lee@hrms.com</td>
-              <td><button class="btn-primary">View Profile</button></td>
-            </tr>
-            <tr>
-              <td>Anna Wong</td><td>Marketing</td><td>Marketing Assistant</td><td>On Leave</td><td>anna.wong@hrms.com</td>
-              <td><button class="btn-primary">View Profile</button></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
 
-      <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
-=======
               <th>Employee</th>
               <th>Department</th>
               <th>Position</th>
@@ -197,7 +140,6 @@
       </div>
 
       <footer>&copy; 2025 Web-Based HRMS. All Rights Reserved.</footer>
->>>>>>> chai-training
     </main>
   </div>
 
@@ -307,3 +249,4 @@
   </script>
 </body>
 </html>
+

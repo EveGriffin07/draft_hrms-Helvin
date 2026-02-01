@@ -10,8 +10,6 @@ use App\Http\Controllers\JobPostController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ApplicantJobController;
 use App\Http\Controllers\TrainingController; 
-<<<<<<< HEAD
-=======
 use App\Http\Controllers\AdminEmployeeController;
 use App\Http\Controllers\AdminAttendanceController;
 use App\Http\Controllers\AdminPenaltyController;
@@ -19,7 +17,7 @@ use App\Http\Controllers\AdminOvertimeController;
 use App\Http\Controllers\AdminSalaryController;
 use App\Http\Controllers\AdminLeaveController;
 use App\Http\Controllers\AdminLeaveBalanceController;
->>>>>>> chai-training
+
 
 /*
 |--------------------------------------------------------------------------
@@ -56,154 +54,62 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 */
 
 Route::prefix('admin')->middleware('auth')->group(function () {
-
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Announcements
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/dashboard/announcement/view', [AnnouncementController::class, 'index'])
-         ->name('admin.announcements.index');
+    // Announcements
+    Route::get('/dashboard/announcement/view', [AnnouncementController::class, 'index'])->name('admin.announcements.index');
+    Route::get('/dashboard/announcement/add', [AnnouncementController::class, 'create'])->name('admin.announcements.create');
+    Route::post('/dashboard/announcement/store', [AnnouncementController::class, 'store'])->name('admin.announcements.store');
+    Route::get('/dashboard/announcement/detail/{id}', [AnnouncementController::class, 'show'])->name('admin.announcements.show');
 
-    Route::get('/dashboard/announcement/add', [AnnouncementController::class, 'create'])
-         ->name('admin.announcements.create');
+    // Recruitment
+    Route::get('/recruitment', [JobPostController::class, 'index'])->name('admin.recruitment.index');
+    Route::get('/recruitment/create', [JobPostController::class, 'create'])->name('admin.recruitment.create');
+    Route::post('/recruitment/store', [JobPostController::class, 'store'])->name('admin.recruitment.store');
+    Route::get('/recruitment/edit/{id}', [JobPostController::class, 'edit'])->name('admin.recruitment.edit');
+    Route::post('/recruitment/update/{id}', [JobPostController::class, 'update'])->name('admin.recruitment.update');
+    Route::delete('/recruitment/delete/{id}', [JobPostController::class, 'destroy'])->name('admin.recruitment.destroy');
 
-    Route::post('/dashboard/announcement/store', [AnnouncementController::class, 'store'])
-         ->name('admin.announcements.store');
+    Route::get('/recruitment/applicants', [ApplicationController::class, 'index'])->name('admin.applicants.index');
+    Route::get('/recruitment/applicants/{id}', [ApplicationController::class, 'show'])->name('admin.applicants.show');
+    Route::post('/recruitment/applicants/{id}/evaluate', [ApplicationController::class, 'saveEvaluation'])->name('admin.applicants.evaluate');
+    Route::post('/recruitment/applicants/{id}/status', [ApplicationController::class, 'updateStatus'])->name('admin.applicants.updateStatus');
+    Route::post('/recruitment/applicants/{id}/onboard', [ApplicationController::class, 'onboard'])->name('admin.applicants.onboard');
 
-    Route::get('/dashboard/announcement/detail/{id}', [AnnouncementController::class, 'show'])
-         ->name('admin.announcements.show');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Recruitment Module (Admin Side)
-    |--------------------------------------------------------------------------
-    */
-    // Job Posts
-    Route::get('/recruitment', [JobPostController::class, 'index'])
-         ->name('admin.recruitment.index');
-
-    Route::get('/recruitment/create', [JobPostController::class, 'create'])
-         ->name('admin.recruitment.create');
-
-    Route::post('/recruitment/store', [JobPostController::class, 'store'])
-         ->name('admin.recruitment.store');
-
-         Route::post('/recruitment/update/{id}', [JobPostController::class, 'update'])
-         ->name('admin.recruitment.update');
-
-    // Applicants
-    Route::get('/recruitment/applicants', [ApplicationController::class, 'index'])
-         ->name('admin.applicants.index');
-
-    Route::get('/recruitment/applicants/{id}', [ApplicationController::class, 'show'])
-         ->name('admin.applicants.show');
-         
-    Route::post('/recruitment/applicants/{id}/evaluate', [ApplicationController::class, 'saveEvaluation'])
-         ->name('admin.applicants.evaluate');
-
-    Route::post('/recruitment/applicants/{id}/status', [ApplicationController::class, 'updateStatus'])
-         ->name('admin.applicants.updateStatus');
-
-         // Edit Job Form
-    Route::get('/recruitment/edit/{id}', [JobPostController::class, 'edit'])
-         ->name('admin.recruitment.edit');
-         
-    // Update Job Data
-    Route::post('/recruitment/update/{id}', [JobPostController::class, 'update'])
-         ->name('admin.recruitment.update');
-
-    // Delete Job
-    Route::delete('/recruitment/delete/{id}', [JobPostController::class, 'destroy'])
-         ->name('admin.recruitment.destroy');
-
-         Route::post('/recruitment/applicants/{id}/onboard', [ApplicationController::class, 'onboard'])
-         ->name('admin.applicants.onboard');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Other Modules (Appraisal, Training, Etc.)
-    |--------------------------------------------------------------------------
-    */
-    
-    // Appraisal
-    Route::get('/appraisal', function () { return view('admin.appraisal_admin'); })->name('admin.appraisal');
-    Route::get('/appraisal/add-kpi', function () { return view('admin.appraisal_add_kpi'); })->name('admin.appraisal.add-kpi');
-    Route::get('/appraisal/reviews', function () { return view('admin.appraisal_reviews'); })->name('admin.appraisal.reviews');
-    Route::get('/appraisal/employee-kpis', function () { return view('admin.appraisal_kpi_employee'); })->name('admin.appraisal.employee-kpis');
-    Route::get('/appraisal/employee-kpi-list', function () { return view('admin.appraisal_kpi_employee_list'); })->name('admin.appraisal.employee-kpi-list');
-    Route::view('/admin/appraisal/department-kpi', 'admin.appraisal_department_kpi')->name('admin.appraisal.department-kpi');
+    // Appraisal (static views)
+    Route::get('/appraisal', fn() => view('admin.appraisal_admin'))->name('admin.appraisal');
+    Route::get('/appraisal/add-kpi', fn() => view('admin.appraisal_add_kpi'))->name('admin.appraisal.add-kpi');
+    Route::get('/appraisal/reviews', fn() => view('admin.appraisal_reviews'))->name('admin.appraisal.reviews');
+    Route::get('/appraisal/employee-kpis', fn() => view('admin.appraisal_kpi_employee'))->name('admin.appraisal.employee-kpis');
+    Route::get('/appraisal/employee-kpi-list', fn() => view('admin.appraisal_kpi_employee_list'))->name('admin.appraisal.employee-kpi-list');
+    Route::view('/appraisal/department-kpi', 'admin.appraisal_department_kpi')->name('admin.appraisal.department-kpi');
 
     // Training
-    // List All
-    Route::get('/training', [TrainingController::class, 'index'])
-         ->name('admin.training');
+    Route::get('/training', [TrainingController::class, 'index'])->name('admin.training');
+    Route::get('/training/add', [TrainingController::class, 'create'])->name('admin.training.add');
+    Route::post('/training/store', [TrainingController::class, 'store'])->name('admin.training.store');
+    Route::get('/training/show/{id}', [TrainingController::class, 'show'])->name('admin.training.show');
+    Route::get('/training/events', [TrainingController::class, 'getEvents'])->name('admin.training.events');
+    Route::post('/training/{id}/enroll', [TrainingController::class, 'storeEnrollment'])->name('admin.training.enroll');
+    Route::post('/training/enrollment/{id}/update', [TrainingController::class, 'updateEnrollmentStatus'])->name('admin.training.updateStatus');
+    Route::get('/training/edit/{id}', [TrainingController::class, 'edit'])->name('admin.training.edit');
+    Route::post('/training/update/{id}', [TrainingController::class, 'update'])->name('admin.training.update');
+    Route::delete('/training/delete/{id}', [TrainingController::class, 'destroy'])->name('admin.training.delete');
 
-    // Create New (Form)
-    Route::get('/training/add', [TrainingController::class, 'create'])
-         ->name('admin.training.add');
-
-    // Store New (Action)
-    Route::post('/training/store', [TrainingController::class, 'store'])
-         ->name('admin.training.store');
-
-    // Show Details
-    Route::get('/training/show/{id}', [TrainingController::class, 'show'])
-         ->name('admin.training.show');
-
-         Route::get('/training/events', [TrainingController::class, 'getEvents'])
-         ->name('admin.training.events');
-
-         Route::post('/training/{id}/enroll', [TrainingController::class, 'storeEnrollment'])
-         ->name('admin.training.enroll');
-
-         Route::post('/training/enrollment/{id}/update', [TrainingController::class, 'updateEnrollmentStatus'])
-         ->name('admin.training.updateStatus');
-
-<<<<<<< HEAD
-         // Edit Form
-    Route::get('/training/edit/{id}', [TrainingController::class, 'edit'])
-         ->name('admin.training.edit');
-
-    // Update Action (Save Changes)
-    Route::post('/training/update/{id}', [TrainingController::class, 'update'])
-         ->name('admin.training.update');
-
-    // Delete Action
-    Route::delete('/training/delete/{id}', [TrainingController::class, 'destroy'])
-         ->name('admin.training.delete');
-
-=======
->>>>>>> chai-training
     // Onboarding
-    Route::get('/onboarding', function () { return view('admin.onboarding_admin'); })->name('admin.onboarding');
-    Route::get('/onboarding/add', function () { return view('admin.onboarding_add'); })->name('admin.onboarding.add');
-    Route::get('/onboarding/checklist', function () { return view('admin.onboarding_checklist'); })->name('admin.onboarding.checklist');
+    Route::get('/onboarding', fn() => view('admin.onboarding_admin'))->name('admin.onboarding');
+    Route::get('/onboarding/add', fn() => view('admin.onboarding_add'))->name('admin.onboarding.add');
+    Route::get('/onboarding/checklist', fn() => view('admin.onboarding_checklist'))->name('admin.onboarding.checklist');
 
     // Assistant & Reports
-    Route::get('/assistant', function () { return view('admin.assistant'); })->name('admin.assistant');
-    Route::get('/reports', function () { return view('admin.reports'); })->name('admin.reports.dashboard');
+    Route::get('/assistant', fn() => view('admin.assistant'))->name('admin.assistant');
+    Route::get('/reports', fn() => view('admin.reports'))->name('admin.reports.dashboard');
 
     // Profile
-    Route::get('/profile', function () { return view('admin.profile'); })->name('admin.profile');
-    
+    Route::get('/profile', fn() => view('admin.profile'))->name('admin.profile');
+
     // Employee Management
-<<<<<<< HEAD
-    Route::get('/employee/list', function () { return view('admin.employee_list'); })->name('admin.employee.list');
-    Route::get('/employee/add', function () { return view('admin.employee_add'); })->name('admin.employee.add');
-
-    // Attendance
-    Route::get('/attendance/tracking', function () { return view('admin.attendance_tracking'); })->name('admin.attendance.tracking');
-    Route::get('/attendance/penalty', function () { return view('admin.attendance_penalty'); })->name('admin.attendance.penalty');
-
-    // Payroll
-    Route::prefix('/payroll')->group(function () {
-        Route::get('/overtime', function () { return view('admin.payroll_overtime'); })->name('admin.payroll.overtime');
-        Route::get('/salary', function () { return view('admin.payroll_salary'); })->name('admin.payroll.salary');
-=======
     Route::get('/employee/list', [AdminEmployeeController::class, 'index'])->name('admin.employee.list');
     Route::get('/employee/add', [AdminEmployeeController::class, 'create'])->name('admin.employee.add');
     Route::post('/employee/add', [AdminEmployeeController::class, 'store'])->name('admin.employee.store');
@@ -222,25 +128,18 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::post('/overtime/{overtime}/status', [AdminOvertimeController::class, 'updateStatus'])->name('admin.payroll.overtime.status');
         Route::get('/salary', [AdminSalaryController::class, 'index'])->name('admin.payroll.salary');
         Route::get('/salary/data', [AdminSalaryController::class, 'data'])->name('admin.payroll.salary.data');
->>>>>>> chai-training
-        Route::get('/attendance', function () { return view('admin.payroll_attendance'); })->name('admin.payroll.attendance');
-        Route::get('/payslip', function () { return view('admin.payroll_payslip'); })->name('admin.payroll.payslip');
+        Route::get('/attendance', fn() => view('admin.payroll_attendance'))->name('admin.payroll.attendance');
+        Route::get('/payslip', fn() => view('admin.payroll_payslip'))->name('admin.payroll.payslip');
     });
 
     // Leave
     Route::prefix('/leave')->group(function () {
-<<<<<<< HEAD
-        Route::get('/request', function () { return view('admin.leave_request'); })->name('admin.leave.request');
-        Route::get('/balance', function () { return view('admin.leave_balance'); })->name('admin.leave.balance');
-=======
         Route::get('/request', [AdminLeaveController::class, 'index'])->name('admin.leave.request');
         Route::get('/request/data', [AdminLeaveController::class, 'data'])->name('admin.leave.request.data');
         Route::post('/request/{leave}/status', [AdminLeaveController::class, 'updateStatus'])->name('admin.leave.request.status');
         Route::get('/balance', [AdminLeaveBalanceController::class, 'index'])->name('admin.leave.balance');
         Route::get('/balance/data', [AdminLeaveBalanceController::class, 'data'])->name('admin.leave.balance.data');
->>>>>>> chai-training
     });
-
 });
 
 
@@ -294,8 +193,5 @@ Route::prefix('applicant')->middleware('auth')->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/employee/dashboard', [EmployeeController::class, 'index'])
          ->name('employee.dashboard');
-<<<<<<< HEAD
+
 });
-=======
-});
->>>>>>> chai-training

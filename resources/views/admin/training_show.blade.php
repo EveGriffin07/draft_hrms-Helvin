@@ -75,36 +75,6 @@
                     <p class="detail-subtitle">{{ Str::limit($program->tr_description, 100) }}</p>
                 </div>
                 <div class="training-header-right">
-<<<<<<< HEAD
-    {{-- Status Badge --}}
-    @if($program->tr_status == 'completed')
-        <span class="status-badge status-completed">Completed</span>
-    @elseif($program->tr_status == 'active')
-        <span class="status-badge status-active">Ongoing</span>
-    @else
-        <span class="status-badge status-planned">Upcoming</span>
-    @endif
-
-    {{-- EDIT Button --}}
-    <a href="{{ route('admin.training.edit', $program->training_id) }}" class="btn btn-secondary" style="border: 1px solid #d1d5db; background: white; color: #374151;">
-        <i class="fa-solid fa-pen"></i> Edit
-    </a>
-
-    {{-- DELETE Button (Form required for security) --}}
-    <form action="{{ route('admin.training.delete', $program->training_id) }}" method="POST" onsubmit="return confirm('Are you sure? This will delete the program and ALL participant records.');" style="display:inline;">
-        @csrf
-        @method('DELETE')
-        <button type="submit" class="btn btn-secondary" style="border: 1px solid #fee2e2; background: #fef2f2; color: #dc2626;">
-            <i class="fa-solid fa-trash"></i> Delete
-        </button>
-    </form>
-
-    {{-- ENROLL Button --}}
-    <button onclick="openEnrollModal()" class="btn btn-primary" style="background-color: #3b82f6; border: none; cursor: pointer;">
-        <i class="fa-solid fa-plus"></i> Enroll Employee
-    </button>
-</div>
-=======
                     @if($program->tr_status == 'completed')
                         <span class="status-badge status-completed">Completed</span>
                     @elseif($program->tr_status == 'active')
@@ -113,16 +83,26 @@
                         <span class="status-badge status-planned">Upcoming</span>
                     @endif
 
-                    {{-- ENROLL BUTTON --}}
                     <button onclick="openEnrollModal()" class="btn btn-primary" style="background-color: #3b82f6; border: none; cursor: pointer;">
                         <i class="fa-solid fa-plus"></i> Enroll Employee
                     </button>
+
+                    <a href="{{ route('admin.training.edit', $program->training_id) }}" class="btn btn-secondary" style="border: 1px solid #d1d5db; background: white; color: #374151;">
+                        <i class="fa-solid fa-pen"></i> Edit
+                    </a>
+
+                    <form action="{{ route('admin.training.delete', $program->training_id) }}" method="POST" onsubmit="return confirm('Are you sure? This will delete the program and ALL participant records.');" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-secondary" style="border: 1px solid #fee2e2; background: #fef2f2; color: #dc2626;">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </form>
 
                     <a href="{{ route('admin.training') }}" class="btn btn-secondary">
                         <i class="fa-solid fa-arrow-left"></i> Back
                     </a>
                 </div>
->>>>>>> chai-training
             </div>
 
             <div class="training-meta-grid">

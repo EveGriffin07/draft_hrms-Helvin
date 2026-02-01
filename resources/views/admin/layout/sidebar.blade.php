@@ -190,12 +190,10 @@
 
   // 3. Handle Clicks (Event Delegation)
   document.addEventListener("click", function (e) {
-<<<<<<< HEAD
-=======
+
     // If another script already handled this click (e.g., page-specific sidebar logic), skip to avoid double toggling.
     if (e.defaultPrevented) return;
 
->>>>>>> chai-training
     const toggle = e.target.closest(".sidebar-toggle");
     if (!toggle) return;
 
@@ -226,8 +224,6 @@
     }
   });
 })();
-<<<<<<< HEAD
+
 </script>
-=======
-</script>
->>>>>>> chai-training
+

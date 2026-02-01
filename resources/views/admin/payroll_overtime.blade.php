@@ -7,10 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
-<<<<<<< HEAD
-=======
+
   <meta name="csrf-token" content="{{ csrf_token() }}">
->>>>>>> chai-training
   <style>
     body { background:#f5f7fb; }
     main { padding:28px 32px; }
@@ -107,13 +105,7 @@
           </div>
           <div class="toolbar">
             <input type="text" id="search" placeholder="Search employee...">
-<<<<<<< HEAD
-            <select id="status">
-              <option value="">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Approved">Approved</option>
-              <option value="Hold">Hold</option>
-=======
+
             <select id="dept">
               <option value="">All Departments</option>
               @foreach($departments as $dept)
@@ -125,7 +117,6 @@
               <option value="pending">Pending</option>
               <option value="approved">Approved</option>
               <option value="rejected">Rejected</option>
->>>>>>> chai-training
             </select>
             <select id="range">
               <option value="">Any Date</option>
@@ -157,44 +148,7 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
-<<<<<<< HEAD
-    const DATA = [
-      { id:1, name:'Jane Smith', dept:'Finance', date:'2025-12-05', hours:3.5, reason:'Quarter-end closing', status:'Pending' },
-      { id:2, name:'David Lee', dept:'IT Department', date:'2025-12-04', hours:2.0, reason:'Deployment support', status:'Pending' },
-      { id:3, name:'Anna Wong', dept:'Marketing', date:'2025-12-02', hours:1.5, reason:'Campaign launch', status:'Approved' },
-    ];
 
-    const tbody = document.querySelector('#ot-table tbody');
-    const search = document.getElementById('search');
-    const status = document.getElementById('status');
-    const range = document.getElementById('range');
-
-    const monthMatch = (d, key) => {
-      const dt = new Date(d);
-      const now = new Date();
-      if (key === 'this-month') {
-        return dt.getFullYear() === now.getFullYear() && dt.getMonth() === now.getMonth();
-      }
-      if (key === 'last-month') {
-        const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        return dt.getFullYear() === prev.getFullYear() && dt.getMonth() === prev.getMonth();
-      }
-      return true;
-    };
-
-    function render() {
-      const q = search.value.trim().toLowerCase();
-      const s = status.value;
-      const r = range.value;
-
-      const rows = DATA.filter(item => {
-        const textMatch = !q || item.name.toLowerCase().includes(q) || item.dept.toLowerCase().includes(q);
-        const statusMatch = !s || item.status === s;
-        const dateMatch = !r || monthMatch(item.date, r);
-        return textMatch && statusMatch && dateMatch;
-      });
-
-=======
     const tbody   = document.querySelector('#ot-table tbody');
     const search  = document.getElementById('search');
     const dept    = document.getElementById('dept');
@@ -248,7 +202,6 @@
     }
 
     function renderTable(rows) {
->>>>>>> chai-training
       tbody.innerHTML = '';
       if (!rows.length) {
         tbody.innerHTML = '<tr><td colspan="7">No overtime requests found.</td></tr>';
@@ -256,22 +209,7 @@
       }
 
       rows.forEach(item => {
-<<<<<<< HEAD
-        const tr = document.createElement('tr');
-        const badge = item.status === 'Approved' ? 'approved' : item.status === 'Hold' ? 'hold' : 'pending';
-        tr.innerHTML = `
-          <td><strong>${item.name}</strong></td>
-          <td>${item.dept}</td>
-          <td>${new Date(item.date).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })}</td>
-          <td>${item.hours}</td>
-          <td>${item.reason}</td>
-          <td><span class="status ${badge}">${item.status}</span></td>
-          <td>
-            ${item.status === 'Pending'
-              ? `<button class="btn btn-approve" data-id="${item.id}" data-action="approve"><i class="fa-solid fa-check"></i> Approve</button>
-                 <button class="btn btn-reject" data-id="${item.id}" data-action="reject"><i class="fa-solid fa-xmark"></i> Reject</button>`
-              : `<button class="btn btn-view" data-id="${item.id}" data-action="view"><i class="fa-regular fa-eye"></i> View</button>`
-=======
+
         const badge = statusBadge(item.status);
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -286,24 +224,13 @@
               ? `<button class="btn btn-approve" data-id="${item.ot_id}" data-action="approve"><i class="fa-solid fa-check"></i> Approve</button>
                  <button class="btn btn-reject" data-id="${item.ot_id}" data-action="reject"><i class="fa-solid fa-xmark"></i> Reject</button>`
               : `<button class="btn btn-view" data-id="${item.ot_id}" data-action="view"><i class="fa-regular fa-eye"></i> View</button>`
->>>>>>> chai-training
             }
           </td>
         `;
         tbody.appendChild(tr);
       });
 
-<<<<<<< HEAD
-      document.querySelectorAll('[data-action]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = Number(btn.dataset.id);
-          const action = btn.dataset.action;
-          const idx = DATA.findIndex(x => x.id === id);
-          if (idx === -1) return;
-          if (action === 'approve') DATA[idx].status = 'Approved';
-          if (action === 'reject') DATA[idx].status = 'Hold';
-          render();
-=======
+
       bindActions();
     }
 
@@ -336,20 +263,16 @@
             btn.disabled = false;
             btn.innerHTML = label;
           }
->>>>>>> chai-training
         });
       });
     }
 
-<<<<<<< HEAD
-    [search, status, range].forEach(el => el.addEventListener('input', render));
-    render();
-=======
+
     [search, dept, status, range].forEach(el => el.addEventListener('input', loadData));
 
     loadData();
->>>>>>> chai-training
   });
   </script>
 </body>
 </html>
+

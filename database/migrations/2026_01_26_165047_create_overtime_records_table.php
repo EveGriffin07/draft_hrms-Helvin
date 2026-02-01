@@ -18,12 +18,8 @@ return new class extends Migration
     $table->date('date');
     $table->decimal('hours', 5, 2);
     $table->decimal('rate_type', 5, 2)->default(1.5); // e.g., 1.5x hourly rate
-<<<<<<< HEAD
-    $table->enum('ot_status', ['pending', 'approved', 'rejected']);
-=======
     $table->string('reason')->nullable();
     $table->enum('ot_status', ['pending', 'approved', 'rejected'])->default('pending');
->>>>>>> chai-training
     $table->foreignId('approved_by')->nullable()->constrained('users', 'user_id');
     $table->timestamps();
 });

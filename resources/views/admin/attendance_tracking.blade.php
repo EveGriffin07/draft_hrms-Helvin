@@ -46,10 +46,8 @@
     .present { background:#dcfce7; color:#166534; }
     .late { background:#fef9c3; color:#854d0e; }
     .absent { background:#fee2e2; color:#991b1b; }
-<<<<<<< HEAD
-=======
+
     .leave { background:#e0e7ff; color:#4338ca; }
->>>>>>> chai-training
 
     .btn-small { padding:6px 10px; font-size:.85rem; border-radius:8px; border:1px solid #d1d5db; background:#fff; cursor:pointer; }
     .btn-view { background:#38bdf8; border-color:#38bdf8; color:#0f172a; }
@@ -91,11 +89,8 @@
         <div class="card"><h3>Total Records</h3><p id="sum-total">0</p></div>
         <div class="card"><h3>Present</h3><p id="sum-present">0</p></div>
         <div class="card"><h3>Late</h3><p id="sum-late">0</p></div>
-<<<<<<< HEAD
-        <div class="card"><h3>Absent</h3><p id="sum-absent">0</p></div>
-=======
+
         <div class="card"><h3>Absent / Leave</h3><p id="sum-absent">0</p></div>
->>>>>>> chai-training
       </section>
 
       <!-- Filters + Period controls -->
@@ -110,17 +105,10 @@
             <label for="department">Department</label><br>
             <select id="department">
               <option value="">All</option>
-<<<<<<< HEAD
-              <option value="IT">IT</option>
-              <option value="HR">HR</option>
-              <option value="Finance">Finance</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Operations">Operations</option>
-=======
+
               @foreach($departments as $dept)
                 <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
               @endforeach
->>>>>>> chai-training
             </select>
           </div>
 
@@ -128,16 +116,11 @@
             <label for="status">Status</label><br>
             <select id="status">
               <option value="">Any</option>
-<<<<<<< HEAD
-              <option value="Present">Present</option>
-              <option value="Late">Late</option>
-              <option value="Absent">Absent</option>
-=======
+
               <option value="present">Present</option>
               <option value="late">Late</option>
               <option value="absent">Absent</option>
               <option value="leave">Leave</option>
->>>>>>> chai-training
             </select>
           </div>
 
@@ -239,11 +222,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Example: both '/admin/attendance/tracking' and '/admin/attendance/tracking/' normalize the same.
   };
   const here = normPath(location.href);
-<<<<<<< HEAD
-=======
+
   const initialStart = "{{ $start ?? '' }}";
   const initialEnd   = "{{ $end ?? '' }}";
->>>>>>> chai-training
 
   // Clear any server-side default actives so JS owns it (prevents double highlight)
   groups.forEach(g => {
@@ -329,40 +310,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-<<<<<<< HEAD
-  /* ---------- Dummy Data (replace with API/DB later) ---------- */
-  // Format: {date:'YYYY-MM-DD', id:'EMP001', name:'John Tan', dept:'IT', in:'09:05', out:'18:00', status:'Late'}
-  const DATA = [
-    // Week sample around Nov 2025 (adjust as needed)
-    {date:'2025-11-03', id:'EMP001', name:'John Tan', dept:'IT', in:'09:05', out:'18:00', status:'Late'},
-    {date:'2025-11-03', id:'EMP002', name:'Alicia Wong', dept:'Finance', in:'08:55', out:'17:55', status:'Present'},
-    {date:'2025-11-03', id:'EMP003', name:'Marcus Lim', dept:'HR', in:'-', out:'-', status:'Absent'},
 
-    {date:'2025-11-04', id:'EMP001', name:'John Tan', dept:'IT', in:'08:59', out:'18:10', status:'Present'},
-    {date:'2025-11-04', id:'EMP002', name:'Alicia Wong', dept:'Finance', in:'09:10', out:'18:05', status:'Late'},
-    {date:'2025-11-04', id:'EMP003', name:'Marcus Lim', dept:'HR', in:'09:00', out:'17:58', status:'Present'},
-
-    {date:'2025-11-05', id:'EMP001', name:'John Tan', dept:'IT', in:'09:03', out:'18:01', status:'Late'},
-    {date:'2025-11-05', id:'EMP002', name:'Alicia Wong', dept:'Finance', in:'08:52', out:'17:52', status:'Present'},
-    {date:'2025-11-05', id:'EMP004', name:'Chen Wei', dept:'Marketing', in:'09:20', out:'18:12', status:'Late'},
-
-    {date:'2025-11-06', id:'EMP001', name:'John Tan', dept:'IT', in:'08:57', out:'18:05', status:'Present'},
-    {date:'2025-11-06', id:'EMP004', name:'Chen Wei', dept:'Marketing', in:'09:00', out:'18:00', status:'Present'},
-
-    {date:'2025-11-07', id:'EMP001', name:'John Tan', dept:'IT', in:'-', out:'-', status:'Absent'},
-    {date:'2025-11-07', id:'EMP002', name:'Alicia Wong', dept:'Finance', in:'08:55', out:'17:55', status:'Present'},
-    {date:'2025-11-07', id:'EMP003', name:'Marcus Lim', dept:'HR', in:'09:40', out:'18:10', status:'Late'},
-
-    // Some earlier month items for month view
-    {date:'2025-10-28', id:'EMP004', name:'Chen Wei', dept:'Marketing', in:'09:03', out:'18:10', status:'Late'},
-    {date:'2025-10-29', id:'EMP002', name:'Alicia Wong', dept:'Finance', in:'08:51', out:'17:45', status:'Present'},
-  ];
-=======
   /* ---------- API-backed data ---------- */
   const ENDPOINT = "{{ route('admin.attendance.data') }}";
   let DATA = [];           // Last fetched, already filtered by current form inputs
   let SUMMARY = { total:0, present:0, late:0, absent:0, leave:0 };
->>>>>>> chai-training
 
   /* ---------- Utilities ---------- */
   const $ = s => document.querySelector(s);
@@ -405,8 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#end').value = ymd(range[1]);
   }
 
-<<<<<<< HEAD
-=======
+
   function setInitialRange() {
     if (initialStart) $('#start').value = initialStart;
     if (initialEnd) $('#end').value = initialEnd;
@@ -415,7 +366,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
->>>>>>> chai-training
   /* ---------- Rendering ---------- */
   function renderTable(rows) {
     tbody.innerHTML = '';
@@ -447,34 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-<<<<<<< HEAD
-  function updateSummary(rows) {
-    $('#sum-total').textContent   = rows.length;
-    $('#sum-present').textContent = rows.filter(r => r.status==='Present').length;
-    $('#sum-late').textContent    = rows.filter(r => r.status==='Late').length;
-    $('#sum-absent').textContent  = rows.filter(r => r.status==='Absent').length;
-  }
 
-  /* ---------- Filtering ---------- */
-  function applyFilters() {
-    const q = $('#search').value.trim().toLowerCase();
-    const dept = $('#department').value;
-    const status = $('#status').value;
-    const start = $('#start').value;
-    const end = $('#end').value;
-
-    const filtered = DATA.filter(r => {
-      const qmatch = !q || r.id.toLowerCase().includes(q) || r.name.toLowerCase().includes(q);
-      const dmatch = !dept || r.dept === dept;
-      const smatch = !status || r.status === status;
-      const rmatch = isBetween(r.date, start, end);
-      return qmatch && dmatch && smatch && rmatch;
-    }).sort((a,b)=> a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
-
-    renderTable(filtered);
-    updateSummary(filtered);
-    wireViewButtons(filtered);
-=======
   function updateSummary() {
     $('#sum-total').textContent   = SUMMARY.total;
     $('#sum-present').textContent = SUMMARY.present;
@@ -514,7 +437,6 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.disabled = false;
       btn.innerHTML = originalLabel;
     }
->>>>>>> chai-training
   }
 
   /* ---------- Period Controls ---------- */
@@ -562,23 +484,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const start = document.getElementById('start').value, end = document.getElementById('end').value;
     const rows = DATA.filter(r => r.id===empId && isBetween(r.date, start, end))
                      .sort((a,b)=> a.date.localeCompare(b.date));
-<<<<<<< HEAD
-    modalTitle.textContent = `${name} (${empId}) — Attendance`;
-    modalChips.innerHTML = `
-      <span class="chip"><i class="fa-regular fa-calendar"></i> ${start} → ${end}</span>
-=======
+
     modalTitle.textContent = `${name} (${empId}) - Attendance`;
     modalChips.innerHTML = `
       <span class="chip"><i class="fa-regular fa-calendar"></i> ${start} -> ${end}</span>
->>>>>>> chai-training
       <span class="chip"><i class="fa-solid fa-building"></i> ${rows[0]?.dept ?? '-'}</span>
       <span class="chip"><i class="fa-regular fa-circle-check"></i> Present: ${rows.filter(r=>r.status==='Present').length}</span>
       <span class="chip"><i class="fa-solid fa-clock"></i> Late: ${rows.filter(r=>r.status==='Late').length}</span>
       <span class="chip"><i class="fa-solid fa-user-slash"></i> Absent: ${rows.filter(r=>r.status==='Absent').length}</span>
-<<<<<<< HEAD
-=======
+
       <span class="chip"><i class="fa-solid fa-umbrella-beach"></i> Leave: ${rows.filter(r=>r.status==='Leave').length}</span>
->>>>>>> chai-training
     `;
     modalBody.innerHTML = rows.map(r => `
       <tr>
@@ -604,13 +519,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ---------- Init ---------- */
-<<<<<<< HEAD
-  setRangeFromView();     // set start/end to current week by default
-=======
+
   setInitialRange();      // set start/end to provided dates or current week
->>>>>>> chai-training
   applyFilters();         // render table + summary
 });
 </script>
 </body>
 </html>
+

@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Penalty extends Model
 {
     protected $primaryKey = 'penalty_id';
-<<<<<<< HEAD
-=======
 
     protected $fillable = [
         'employee_id',
@@ -34,5 +32,4 @@ class Penalty extends Model
     {
         return $this->belongsTo(Attendance::class, 'attendance_id');
     }
->>>>>>> chai-training
 }
