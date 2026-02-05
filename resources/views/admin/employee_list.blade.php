@@ -3,76 +3,143 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Add Employee - HRMS</title>
+
+  <title>Employee Overview - HRMS</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
+
+  <style>
+    /* Page-specific helpers */
+    .employee-page .filter-bar { flex-wrap: wrap; gap: 10px; }
+    .employee-page .filter-bar .actions { display: flex; gap: 8px; align-items: center; }
+    .btn-ghost { background: #fff; border: 1px solid #d1d5db; color: #0f172a; border-radius: 8px; padding: 8px 12px; text-decoration: none; }
+    .status-chip { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .status-active { background: #ecfdf3; color: #15803d; }
+    .status-inactive { background: #fef9c3; color: #92400e; }
+    .status-terminated { background: #fee2e2; color: #b91c1c; }
+    .muted { color: #94a3b8; font-size: 12px; }
+    .table-meta { color: #64748b; font-size: 13px; margin-top: 4px; }
+  </style>
 </head>
 
 <body>
   <header>
     <div class="title">Web-Based HRMS</div>
     <div class="user-info">
-    <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
-        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
-    </a>
-</div>
+
+      <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
+        <i class="fa-regular fa-bell"></i> &nbsp; {{ Auth::user()->name ?? 'HR Admin' }}
+      </a>
+    </div>
   </header>
 
   <div class="container">
     @include('admin.layout.sidebar')
 
     <main class="employee-page">
-      <div class="breadcrumb">Home > Employee Management > Add Employee</div>
-      <h2>Add New Employee</h2>
-      <p class="subtitle">Register new employees and view overall employee data insights.</p>
+
+      <div class="breadcrumb">Home > Employee Management > Employee Overview</div>
+      <h2>Employee Overview</h2>
+      <p class="subtitle">Live view of every employee record stored in the database.</p>
 
       <div class="summary-cards">
-        <div class="card"><h4>Total Employees</h4><p>128</p></div>
-        <div class="card"><h4>Active Employees</h4><p>117</p></div>
-        <div class="card"><h4>Departments</h4><p>8</p></div>
-        <div class="card"><h4>On Leave</h4><p>6</p></div>
+        <div class="card"><h4>Total Employees</h4><p>{{ $totalEmployees }}</p></div>
+        <div class="card"><h4>Active Employees</h4><p>{{ $activeEmployees }}</p></div>
+        <div class="card"><h4>Departments</h4><p>{{ $departmentsCount }}</p></div>
+        <div class="card"><h4>On Leave Today</h4><p>{{ $onLeave }}</p></div>
       </div>
 
-      <div class="filter-bar">
-        <input type="text" placeholder="Search employee name..." />
-        <select>
+      @if (session('success'))
+        <div style="background:#ecfdf3; border:1px solid #bbf7d0; color:#166534; padding:12px 14px; border-radius:10px; margin-bottom:14px;">
+          {{ session('success') }}
+        </div>
+      @endif
+
+      <form class="filter-bar" method="GET" action="{{ route('admin.employee.list') }}">
+        <input type="text" name="q" value="{{ $search }}" placeholder="Search name, email or code..." />
+
+        <select name="department">
           <option value="">All Departments</option>
-          <option value="HR">Human Resources</option>
-          <option value="IT">IT Department</option>
-          <option value="Finance">Finance</option>
-          <option value="Marketing">Marketing</option>
+          @foreach($departments as $dept)
+            <option value="{{ $dept->department_id }}" {{ $departmentId == $dept->department_id ? 'selected' : '' }}>
+              {{ $dept->department_name }}
+            </option>
+          @endforeach
         </select>
-        <button class="btn-primary"><i class="fa-solid fa-filter"></i> Filter</button>
-      </div>
+
+        <select name="status">
+          <option value="">All Statuses</option>
+          <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Active</option>
+          <option value="inactive" {{ $status === 'inactive' ? 'selected' : '' }}>Inactive</option>
+          <option value="terminated" {{ $status === 'terminated' ? 'selected' : '' }}>Terminated</option>
+        </select>
+
+        <div class="actions">
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-filter"></i> Apply</button>
+          @if($search || $departmentId || $status)
+            <a class="btn-ghost" href="{{ route('admin.employee.list') }}"><i class="fa-solid fa-rotate-left"></i> Reset</a>
+          @endif
+          <a class="btn-primary" href="{{ route('admin.employee.add') }}" style="text-decoration:none;"><i class="fa-solid fa-user-plus"></i> Add Employee</a>
+        </div>
+      </form>
 
       <div class="content-section">
         <h3>Employee List</h3>
         <table>
           <thead>
             <tr>
-              <th>Name</th><th>Department</th><th>Position</th><th>Status</th><th>Email</th><th>Action</th>
+
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Position</th>
+              <th>Status</th>
+              <th>Email</th>
+              <th>Hire Date</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Jane Smith</td><td>Finance</td><td>Accountant</td><td>Active</td><td>jane.smith@hrms.com</td>
-              <td><button class="btn-primary">View Profile</button></td>
-            </tr>
-            <tr>
-              <td>David Lee</td><td>IT Department</td><td>Software Engineer</td><td>Active</td><td>david.lee@hrms.com</td>
-              <td><button class="btn-primary">View Profile</button></td>
-            </tr>
-            <tr>
-              <td>Anna Wong</td><td>Marketing</td><td>Marketing Assistant</td><td>On Leave</td><td>anna.wong@hrms.com</td>
-              <td><button class="btn-primary">View Profile</button></td>
-            </tr>
+            @forelse($employees as $employee)
+              <tr>
+                <td>
+                  <div style="font-weight:600; color:#0f172a;">{{ optional($employee->user)->name ?? 'N/A' }}</div>
+                  <div class="muted">{{ $employee->employee_code }}</div>
+                </td>
+                <td>{{ optional($employee->department)->department_name ?? 'N/A' }}</td>
+                <td>{{ optional($employee->position)->position_name ?? 'N/A' }}</td>
+                <td>
+                  @php
+                    $statusClass = match($employee->employee_status) {
+                      'active' => 'status-active',
+                      'inactive' => 'status-inactive',
+                      default => 'status-terminated'
+                    };
+                  @endphp
+                  <span class="status-chip {{ $statusClass }}">{{ ucfirst($employee->employee_status) }}</span>
+                </td>
+                <td>{{ optional($employee->user)->email ?? 'N/A' }}</td>
+                <td>{{ \Carbon\Carbon::parse($employee->hire_date)->format('M d, Y') }}</td>
+              </tr>
+            @empty
+              <tr>
+                <td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">No employees found for the selected filters.</td>
+              </tr>
+            @endforelse
           </tbody>
         </table>
+
+        <div style="display:flex; justify-content: space-between; align-items:center; margin-top:16px; flex-wrap: wrap; gap: 10px;">
+          <div class="muted" style="font-size:13px;">
+            Showing {{ $employees->firstItem() ?? 0 }}-{{ $employees->lastItem() ?? 0 }} of {{ $employees->total() }} employees
+          </div>
+          <div>
+            {{ $employees->links() }}
+          </div>
+        </div>
       </div>
 
-      <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
+      <footer>&copy; 2025 Web-Based HRMS. All Rights Reserved.</footer>
     </main>
   </div>
 
@@ -182,3 +249,4 @@
   </script>
 </body>
 </html>
+

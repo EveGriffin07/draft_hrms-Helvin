@@ -19,7 +19,7 @@ return new class extends Migration
     $table->decimal('default_amount', 10, 2);
     $table->date('assigned_at');
     $table->date('removed_at')->nullable();
-    $table->enum('status', ['active', 'resolved']);
+    $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
     $table->timestamps();
 });
     }

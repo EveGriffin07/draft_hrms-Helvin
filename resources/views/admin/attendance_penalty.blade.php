@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <style>
     /* Page-specific: keep white cards/tables for readability */
     main { padding: 2rem; }
@@ -98,11 +99,9 @@
             <label for="dept">Department</label>
             <select id="dept">
               <option value="">All</option>
-              <option value="IT">IT</option>
-              <option value="HR">HR</option>
-              <option value="Finance">Finance</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Sales">Sales</option>
+              @foreach($departments as $dept)
+                <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
+              @endforeach
             </select>
           </div>
           <div class="split">
@@ -119,9 +118,9 @@
             <label for="status">Status</label>
             <select id="status">
               <option value="">Any</option>
-              <option value="Pending">Pending</option>
-              <option value="Approved">Approved</option>
-              <option value="Rejected">Rejected</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
             </select>
           </div>
           <div class="split">
@@ -270,37 +269,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ================== Penalty Removal & Tracking logic ================== */
-  // penalty: {pid, id, name, dept, reason, points, date, status, tag}
-  let PENALTIES = [
-    {pid:'P-1021', id:'EMP007', name:'Sarah Lee',   dept:'Marketing', reason:'3x Late',       points:3, date:'2025-11-02', status:'Pending',  tag:'Late'},
-    {pid:'P-1022', id:'EMP010', name:'Daniel Ong',  dept:'Finance',   reason:'2x Absent',     points:4, date:'2025-10-28', status:'Approved', tag:'Absent'},
-    {pid:'P-1023', id:'EMP001', name:'John Tan',    dept:'IT',        reason:'Early Checkout',points:1, date:'2025-11-01', status:'Pending',  tag:'Early Checkout'},
-    {pid:'P-1024', id:'EMP003', name:'Marcus Lim',  dept:'HR',        reason:'No Clock-in',   points:2, date:'2025-10-29', status:'Rejected', tag:'No Clock-in'},
-    {pid:'P-1025', id:'EMP004', name:'Chen Wei',    dept:'Marketing', reason:'Late',          points:1, date:'2025-11-03', status:'Pending',  tag:'Late'},
-    {pid:'P-1026', id:'EMP002', name:'Alicia Wong', dept:'Finance',   reason:'Late',          points:1, date:'2025-11-04', status:'Approved', tag:'Late'},
-    {pid:'P-1027', id:'EMP005', name:'Haziq Noor',  dept:'Sales',     reason:'Absent',        points:2, date:'2025-11-05', status:'Pending',  tag:'Absent'},
-  ];
+  /* ================== Penalty Removal & Tracking logic (API-backed) ================== */
+  const ENDPOINT_LIST   = "{{ route('admin.attendance.penalty.data') }}";
+  const ENDPOINT_STATUS = (id) => "{{ route('admin.attendance.penalty.status', ['penalty' => '__ID__']) }}".replace('__ID__', id);
+  const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+  let PENALTIES = [];
+  let SUMMARY   = { total:0, pending:0, approved:0, rejected:0 };
 
   const $ = s => document.querySelector(s);
   const tbody = document.querySelector('#penaltyTable tbody');
 
-  function isBetween(d, start, end) {
-    const x = new Date(d);
-    if (start) { const s = new Date(start); s.setHours(0,0,0,0); if (x < s) return false; }
-    if (end)   { const e = new Date(end);   e.setHours(23,59,59,999); if (x > e) return false; }
-    return true;
-  }
-
-  function updateStats(rows) {
-    const total = rows.length;
-    const pending = rows.filter(r => r.status === 'Pending').length;
-    const approved = rows.filter(r => r.status === 'Approved').length;
-    const rejected = rows.filter(r => r.status === 'Rejected').length;
-    $('#s-total').textContent    = total;
-    $('#s-pending').textContent  = pending;
-    $('#s-approved').textContent = approved;
-    $('#s-rejected').textContent = rejected;
+  function updateStats() {
+    $('#s-total').textContent    = SUMMARY.total;
+    $('#s-pending').textContent  = SUMMARY.pending;
+    $('#s-approved').textContent = SUMMARY.approved;
+    $('#s-rejected').textContent = SUMMARY.rejected;
   }
 
   function wireActions() {
@@ -309,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pid = btn.getAttribute('data-pid');
         const row = PENALTIES.find(p => p.pid === pid);
         if (!row || row.status !== 'Pending') return;
-        openConfirm(pid, 'approve', row);
+        openConfirm(pid, btn.getAttribute('data-id'), 'approve', row);
       });
     });
 
@@ -318,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pid = btn.getAttribute('data-pid');
         const row = PENALTIES.find(p => p.pid === pid);
         if (!row || row.status !== 'Pending') return;
-        openConfirm(pid, 'reject', row);
+        openConfirm(pid, btn.getAttribute('data-id'), 'reject', row);
       });
     });
   }
@@ -330,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const td = document.createElement('td');
       td.colSpan = 8; td.textContent = 'No penalties match the current filters.';
       tr.appendChild(td); tbody.appendChild(tr);
-      updateStats(rows);
+      updateStats();
       return;
     }
 
@@ -350,10 +334,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${r.date}</td>
         <td><span class="status ${r.status.toLowerCase()}">${r.status}</span></td>
         <td>
-          <button class="${approveClasses}" data-pid="${r.pid}">
+          <button class="${approveClasses}" data-pid="${r.pid}" data-id="${r.penalty_id}">
             <i class="fa-solid fa-check"></i> Approve
           </button>
-          <button class="${rejectClasses}" data-pid="${r.pid}">
+          <button class="${rejectClasses}" data-pid="${r.pid}" data-id="${r.penalty_id}">
             <i class="fa-solid fa-xmark"></i> Reject
           </button>
         </td>
@@ -361,30 +345,38 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.appendChild(tr);
     });
 
-    updateStats(rows);
+    updateStats();
     wireActions();
   }
 
-  function applyFilters() {
-    const q = $('#q').value.trim().toLowerCase();
-    const dept = $('#dept').value;
-    const reason = $('#reason').value;
-    const status = $('#status').value;
-    const start = $('#start').value;
-    const end = $('#end').value;
+  async function applyFilters() {
+    const btn = document.getElementById('apply');
+    const original = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading';
 
-    const rows = PENALTIES
-      .filter(r => {
-        const qmatch = !q || r.id.toLowerCase().includes(q) || r.name.toLowerCase().includes(q);
-        const dmatch = !dept || r.dept === dept;
-        const rmatch = !reason || r.tag === reason || r.reason.toLowerCase().includes(reason.toLowerCase());
-        const smatch = !status || r.status === status;
-        const tmatch = isBetween(r.date, start, end);
-        return qmatch && dmatch && rmatch && smatch && tmatch;
-      })
-      .sort((a,b)=> b.date.localeCompare(a.date) || a.pid.localeCompare(b.pid));
+    const params = new URLSearchParams({
+      q: $('#q').value.trim(),
+      department: $('#dept').value,
+      reason: $('#reason').value,
+      status: $('#status').value,
+      start: $('#start').value,
+      end: $('#end').value,
+    });
 
-    render(rows);
+    try {
+      const resp = await fetch(`${ENDPOINT_LIST}?${params.toString()}`, { headers: { 'Accept': 'application/json' }});
+      if (!resp.ok) throw new Error('Failed to load penalties');
+      const json = await resp.json();
+      PENALTIES = Array.isArray(json.data) ? json.data : [];
+      SUMMARY = json.summary || SUMMARY;
+      render(PENALTIES);
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="8">Could not load penalties. ${err.message}</td></tr>`;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = original;
+    }
   }
 
   $('#apply').addEventListener('click', applyFilters);
@@ -405,15 +397,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const cancelAction = document.getElementById('cancelAction');
   const proceedAction = document.getElementById('proceedAction');
 
-  let pendingAction = null; // {pid, type}
+  let pendingAction = null; // {pid, id, type}
 
-  function openConfirm(pid, type, row) {
+  function openConfirm(pid, id, type, row) {
     confirmTitle.textContent = type === 'approve' ? 'Approve Penalty' : 'Reject Penalty';
     confirmBody.innerHTML = `
       <p>Are you sure you want to <strong>${type}</strong> penalty <strong>${row.pid}</strong> for <strong>${row.name} (${row.id})</strong>?</p>
-      <p style="margin-top:8px; color:#6b7280;">Reason: ${row.reason} · Points: ${row.points} · Date: ${row.date}</p>
+      <p style="margin-top:8px; color:#6b7280;">Reason: ${row.reason} - Points: ${row.points} - Date: ${row.date}</p>
     `;
-    pendingAction = { pid, type };
+    pendingAction = { pid, id, type };
     confirmBack.style.display = 'flex';
   }
 
@@ -427,14 +419,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   proceedAction.addEventListener('click', () => {
     if (!pendingAction) return;
-    const { pid, type } = pendingAction;
+    const { id, type } = pendingAction;
 
-    PENALTIES = PENALTIES.map(p => (
-      p.pid === pid ? { ...p, status: type === 'approve' ? 'Approved' : 'Rejected' } : p
-    ));
+    proceedAction.disabled = true;
+    proceedAction.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Working';
 
-    closeConfirm();
-    applyFilters();
+    fetch(ENDPOINT_STATUS(id), {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': CSRF_TOKEN,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ action: type }),
+    }).then(async resp => {
+      if (!resp.ok) {
+        const msg = await resp.text();
+        throw new Error(msg || 'Failed to update penalty');
+      }
+      return resp.json();
+    }).then(() => {
+      closeConfirm();
+      applyFilters();
+    }).catch(err => {
+      alert('Unable to update penalty: ' + err.message);
+    }).finally(() => {
+      proceedAction.disabled = false;
+      proceedAction.innerHTML = 'Proceed';
+    });
   });
 
   /* ----- Init ----- */

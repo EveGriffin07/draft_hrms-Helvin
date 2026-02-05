@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\TrainingProgram;
 use App\Models\TrainingEnrollment;
 use App\Models\Department;
-use App\Models\Employee; 
+use App\Models\Employee;
 use Carbon\Carbon;
 
 class TrainingController extends Controller
@@ -14,7 +14,7 @@ class TrainingController extends Controller
     public function index()
     {
         $programs = TrainingProgram::with('department')->orderBy('start_date', 'desc')->get();
-        
+
         $total = $programs->count();
         $ongoing = $programs->where('tr_status', 'active')->count();
         $completed = $programs->where('tr_status', 'completed')->count();
@@ -23,10 +23,10 @@ class TrainingController extends Controller
         return view('admin.training_admin', compact('programs', 'total', 'ongoing', 'completed', 'upcoming'));
     }
 
-    // --- UPDATED: Fetch Departments for Dropdown ---
+    // Fetch Departments for Create Dropdown
     public function create()
     {
-        $departments = Department::all(); // Fetch all departments
+        $departments = Department::all();
         return view('admin.training_add', compact('departments'));
     }
 
@@ -35,7 +35,7 @@ class TrainingController extends Controller
         $request->validate([
             'trainingTitle' => 'required|string|max:255',
             'trainerName'   => 'required|string|max:255',
-            'department'    => 'required|string', 
+            'department'    => 'required|string',
             'startDate'     => 'required|date',
             'endDate'       => 'required|date|after_or_equal:startDate',
             'mode'          => 'required|string',
@@ -43,14 +43,14 @@ class TrainingController extends Controller
             'description'   => 'nullable|string',
         ]);
 
-        // Find department by name (since the value in option is the name)
+        // Find department by name (since option value is name)
         $dept = Department::where('department_name', $request->department)->first();
-        $deptId = $dept ? $dept->department_id : null; 
+        $deptId = $dept ? $dept->department_id : null;
 
         $today = Carbon::today();
         $start = Carbon::parse($request->startDate);
-        $end = Carbon::parse($request->endDate);
-        
+        $end   = Carbon::parse($request->endDate);
+
         $status = 'planned';
         if ($today->between($start, $end)) {
             $status = 'active';
@@ -76,17 +76,17 @@ class TrainingController extends Controller
     public function show($id)
     {
         $program = TrainingProgram::with(['enrollments.employee.user', 'department'])
-                     ->findOrFail($id);
+            ->findOrFail($id);
 
         $enrolledEmployeeIds = $program->enrollments->pluck('employee_id')->toArray();
-        
+
         $potentialTrainees = Employee::with('user')
-                             ->whereNotIn('employee_id', $enrolledEmployeeIds)
-                             ->where('employee_status', 'active')
-                             ->get()
-                             ->sortBy(function($employee) {
-                                 return $employee->user->name ?? '';
-                             });
+            ->whereNotIn('employee_id', $enrolledEmployeeIds)
+            ->where('employee_status', 'active')
+            ->get()
+            ->sortBy(function ($employee) {
+                return $employee->user->name ?? '';
+            });
 
         return view('admin.training_show', compact('program', 'potentialTrainees'));
     }
@@ -111,21 +111,20 @@ class TrainingController extends Controller
     public function getEvents()
     {
         $programs = TrainingProgram::all();
-
         $events = [];
 
         foreach ($programs as $program) {
-            $color = '#3b82f6'; // Default Blue
-            if ($program->tr_status == 'completed') $color = '#22c55e'; // Green
-            if ($program->tr_status == 'planned')   $color = '#f97316'; // Orange
+            $color = '#3b82f6'; // active/default = blue
+            if ($program->tr_status === 'completed') $color = '#22c55e'; // green
+            if ($program->tr_status === 'planned')   $color = '#f97316'; // orange
 
             $events[] = [
                 'title' => $program->training_name . ' (' . $program->mode . ')',
                 'start' => $program->start_date,
-                'end'   => \Carbon\Carbon::parse($program->end_date)->addDay()->format('Y-m-d'),
+                'end'   => Carbon::parse($program->end_date)->addDay()->format('Y-m-d'),
                 'url'   => route('admin.training.show', $program->training_id),
                 'backgroundColor' => $color,
-                'borderColor' => $color,
+                'borderColor'     => $color,
             ];
         }
 
@@ -140,7 +139,7 @@ class TrainingController extends Controller
         ]);
 
         $enrollment = TrainingEnrollment::findOrFail($id);
-        
+
         $enrollment->update([
             'completion_status' => $request->completion_status,
             'remarks'           => $request->remarks
@@ -149,11 +148,11 @@ class TrainingController extends Controller
         return redirect()->back()->with('success', 'Participant status updated successfully!');
     }
 
-    // --- UPDATED: Fetch Departments for Edit Dropdown too ---
+    // Show Edit Form (with Departments dropdown)
     public function edit($id)
     {
         $program = TrainingProgram::with('department')->findOrFail($id);
-        $departments = Department::all(); // Fetch all departments for the edit list
+        $departments = Department::all();
         return view('admin.training_edit', compact('program', 'departments'));
     }
 
@@ -162,7 +161,7 @@ class TrainingController extends Controller
         $request->validate([
             'trainingTitle' => 'required|string|max:255',
             'trainerName'   => 'required|string|max:255',
-            'department'    => 'required|string', 
+            'department'    => 'required|string',
             'startDate'     => 'required|date',
             'endDate'       => 'required|date|after_or_equal:startDate',
             'mode'          => 'required|string',
@@ -177,8 +176,8 @@ class TrainingController extends Controller
 
         $today = Carbon::today();
         $start = Carbon::parse($request->startDate);
-        $end = Carbon::parse($request->endDate);
-        
+        $end   = Carbon::parse($request->endDate);
+
         $status = 'planned';
         if ($today->between($start, $end)) {
             $status = 'active';
@@ -205,10 +204,9 @@ class TrainingController extends Controller
     {
         $program = TrainingProgram::findOrFail($id);
 
-        // Delete all student enrollments first to prevent Foreign Key Error
+        // Delete enrollments first to prevent foreign key constraint issues
         $program->enrollments()->delete();
 
-        // Now delete the program
         $program->delete();
 
         return redirect()->route('admin.training')->with('success', 'Training program deleted successfully.');

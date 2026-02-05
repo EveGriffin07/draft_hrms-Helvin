@@ -202,3 +202,103 @@
   color: #0f172a;
   border-color: #d1d5db;
 }
+
+/* Pagination fixes (Laravel tailwind template without tailwind) */
+.employee-page .pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  margin: 0;
+  list-style: none;
+}
+
+.employee-page .pagination li {
+  list-style: none;
+}
+
+.employee-page .pagination a,
+.employee-page .pagination span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.employee-page .pagination a:hover {
+  border-color: #38bdf8;
+  color: #0f172a;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.employee-page .pagination .active span {
+  background: #38bdf8;
+  border-color: #38bdf8;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.employee-page .pagination svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Tailwind-style pagination (default Laravel view) */
+.employee-page nav[aria-label="Pagination Navigation"] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.employee-page nav[aria-label="Pagination Navigation"] > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.employee-page nav[aria-label="Pagination Navigation"] a,
+.employee-page nav[aria-label="Pagination Navigation"] span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.employee-page nav[aria-label="Pagination Navigation"] a:hover {
+  border-color: #38bdf8;
+  color: #0f172a;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.employee-page nav[aria-label="Pagination Navigation"] span[aria-current="page"],
+.employee-page nav[aria-label="Pagination Navigation"] .active span {
+  background: #38bdf8;
+  border-color: #38bdf8;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.employee-page nav[aria-label="Pagination Navigation"] svg {
+  width: 12px;
+  height: 12px;
+}

@@ -6,6 +6,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
   .box{background:#fff;border-radius:10px;padding:16px;margin-bottom:16px}
   table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}
@@ -59,13 +61,21 @@
         <div>
           <label>Department</label>
           <select id="dept">
-            <option value="">All</option><option>IT</option><option>HR</option><option>Finance</option><option>Marketing</option>
+
+            <option value="">All</option>
+            @foreach($departments as $dept)
+              <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
+            @endforeach
           </select>
         </div>
         <div>
           <label>Type</label>
           <select id="type">
-            <option value="">All</option><option>Annual</option><option>Sick</option><option>Unpaid</option><option>Emergency</option>
+
+            <option value="">All</option>
+            @foreach($leaveTypes as $t)
+              <option value="{{ $t->leave_type_id }}">{{ $t->leave_name }}</option>
+            @endforeach
           </select>
         </div>
         <div>
@@ -101,7 +111,8 @@
         </thead>
         <tbody></tbody>
       </table>
-      <p class="muted" style="margin-top:8px">Front-end demo only. Hook up a controller to persist changes.</p>
+
+      <p class="muted" style="margin-top:8px">Changes persist via the admin API.</p>
     </div>
 
     <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
@@ -110,6 +121,12 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+
+  const ENDPOINT_LIST   = "{{ route('admin.leave.request.data') }}";
+  const ENDPOINT_STATUS = (id) => "{{ route('admin.leave.request.status', ['leave' => '__ID__']) }}".replace('__ID__', id);
+  const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  let ROWS = [];
+
   /* ========= Sidebar: single active, single open, persistence ========= */
   const groups  = document.querySelectorAll('.sidebar-group');
   const toggles = document.querySelectorAll('.sidebar-toggle');
@@ -206,8 +223,138 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter' || e.key === ' ') doToggle(e);
     });
   });
+
+
+  /* ===== Leave logic ===== */
+  const $ = (s)=>document.querySelector(s);
+  const tbody = $('#tbl tbody');
+
+  const pills = {
+    pending: '<span class="pill s-pending">Pending</span>',
+    approved: '<span class="pill s-approved">Approved</span>',
+    rejected: '<span class="pill s-rejected">Rejected</span>',
+  };
+
+  function updateKpis() {
+    $('#k-total').textContent    = ROWS.length;
+    $('#k-pending').textContent  = ROWS.filter(r=>r.status==='Pending').length;
+    $('#k-approved').textContent = ROWS.filter(r=>r.status==='Approved').length;
+    $('#k-rejected').textContent = ROWS.filter(r=>r.status==='Rejected').length;
+  }
+
+  function render(rows) {
+    tbody.innerHTML = '';
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="7">No leave requests found.</td></tr>';
+      updateKpis();
+      return;
+    }
+
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${r.employee}</strong><br><span class="muted">${r.code}</span></td>
+        <td>${r.dept}</td>
+        <td>${r.type}</td>
+        <td>${r.start} &rarr; ${r.end}</td>
+        <td>${r.days}</td>
+        <td>${pills[r.status.toLowerCase()] ?? r.status}</td>
+        <td class="actions">
+          <button class="chip approved" data-id="${r.id}" data-status="approved">Approve</button>
+          <button class="chip rejected" data-id="${r.id}" data-status="rejected">Reject</button>
+          <button class="chip pending" data-id="${r.id}" data-status="pending">Set Pending</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+    updateKpis();
+    bindActions();
+  }
+
+  function applyFilters() {
+    const q = $('#q').value.trim().toLowerCase();
+    const dept = $('#dept').value;
+    const type = $('#type').value;
+    const status = $('#status').value;
+    const rows = ROWS.filter(r => {
+      const qmatch = !q || r.code.toLowerCase().includes(q) || r.employee.toLowerCase().includes(q);
+      const dmatch = !dept || r.dept_id === dept || r.dept === dept; // dept comparison on id preferred
+      const tmatch = !type || r.type_id === type || r.type === type;
+      const smatch = !status || r.status.toLowerCase() === status;
+      return qmatch && dmatch && tmatch && smatch;
+    });
+    render(rows);
+  }
+
+  async function loadData() {
+    tbody.innerHTML = '<tr><td colspan="7">Loading...</td></tr>';
+    try {
+      const params = new URLSearchParams({
+        q: $('#q').value.trim(),
+        department: $('#dept').value,
+        type: $('#type').value,
+        status: $('#status').value,
+      });
+      const resp = await fetch(`${ENDPOINT_LIST}?${params.toString()}`, { headers: { 'Accept': 'application/json' }});
+      if (!resp.ok) throw new Error('Failed to load leave requests');
+      const json = await resp.json();
+      ROWS = Array.isArray(json.data) ? json.data.map(r => ({
+        ...r,
+        dept_id: r.dept_id ?? null,
+        type_id: r.type_id ?? null,
+      })) : [];
+      render(ROWS);
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`;
+    }
+  }
+
+  async function updateStatus(id, status) {
+    const btns = document.querySelectorAll(`button[data-id="${id}"]`);
+    btns.forEach(b => { b.disabled = true; b.textContent = '...'; });
+    try {
+      const resp = await fetch(ENDPOINT_STATUS(id), {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': CSRF_TOKEN,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+      if (!resp.ok) throw new Error(await resp.text() || 'Update failed');
+      await loadData();
+    } catch (err) {
+      alert('Unable to update leave: ' + err.message);
+    } finally {
+      btns.forEach(b => { b.disabled = false; b.textContent = b.classList.contains('approved') ? 'Approve' : b.classList.contains('rejected') ? 'Reject' : 'Set Pending'; });
+    }
+  }
+
+  function bindActions() {
+    document.querySelectorAll('.actions button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const status = btn.getAttribute('data-status');
+        updateStatus(id, status);
+      });
+    });
+  }
+
+  $('#apply').addEventListener('click', loadData);
+  $('#clear').addEventListener('click', () => {
+    $('#q').value = '';
+    $('#dept').value = '';
+    $('#type').value = '';
+    $('#status').value = '';
+    loadData();
+  });
+
+  // initial load
+  loadData();
 });
 </script>
 
 </body>
 </html>
+
