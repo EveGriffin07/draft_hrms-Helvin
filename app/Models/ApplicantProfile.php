@@ -12,14 +12,14 @@ class ApplicantProfile extends Model
     protected $primaryKey = 'applicant_id';
 
     // Add this to allow mass assignment
-    protected $fillable = [
-        'user_id',       // <--- Critical for your fix
+   protected $fillable = [
+        'user_id',
         'full_name',
         'phone',
         'location',
         'avatar_path',
         'resume_path',
-        'email'          // Ideally add 'email' to your DB too, but for now this is fine
+        'email', // <--- MAKE SURE THIS LINE IS HERE!
     ];
 
     // Optional: Link back to the User

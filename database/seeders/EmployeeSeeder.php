@@ -13,32 +13,36 @@ class EmployeeSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create a Dummy Department (if one doesn't exist)
+        // 1. Create a Dummy Department
+        // We use 'Information Technology' to match your other seeder
         $dept = Department::firstOrCreate(
-            ['department_name' => 'IT Department'], // Check this
-            ['de_description' => 'Information Technology'] // Create this if missing
+            ['department_name' => 'Information Technology'], 
+            ['de_description' => 'Handles IT infrastructure and software.']
         );
 
-        // 2. Create a Dummy Position
+        // 2. Create a Dummy Position (LINKED TO DEPARTMENT)
         $pos = Position::firstOrCreate(
             ['position_name' => 'Software Engineer'],
-            ['pos_description' => 'Standard Dev Role']
+            [
+                'pos_description' => 'Standard Dev Role',
+                'department_id' => $dept->department_id // <--- FIXED: Now requires this ID
+            ]
         );
 
-        // 3. Create the User Login (The Account)
+        // 3. Create the User Login
+        // Note: I removed 'user_id' => '3' so the DB auto-increments it safely
         $user = User::create([
-            'user_id' => '3', // We use ID 2 because Admin is ID 1
             'name' => 'John Employee',
             'email' => 'employee@example.com',
             'password' => Hash::make('password123'),
             'role' => 'employee',
         ]);
 
-        // 4. Create the Employee Profile (The Data)
+        // 4. Create the Employee Profile
         Employee::create([
-            'user_id' => $user->user_id,         // Link to the User above
-            'department_id' => $dept->department_id, // Link to Dept above
-            'position_id' => $pos->position_id,   // Link to Position above
+            'user_id' => $user->user_id,         
+            'department_id' => $dept->department_id, 
+            'position_id' => $pos->position_id,   
             'employee_code' => 'EMP-001',
             'employee_status' => 'active',
             'hire_date' => now(),

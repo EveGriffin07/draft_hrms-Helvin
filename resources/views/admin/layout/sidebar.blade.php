@@ -35,21 +35,27 @@
     </div>
 
   {{-- APPRAISAL --}}
-    <div class="sidebar-group {{ request()->is('admin/appraisal*') ? 'open' : '' }}">
-        <a href="#" class="sidebar-toggle">
-            <div class="left">
-                <i class="fa-solid fa-chart-line"></i>
-                <span>Appraisal</span>
-            </div>
-            <i class="fa-solid fa-chevron-right arrow"></i>
-        </a>
-        <ul class="submenu">
-            <li><a href="{{ route('admin.appraisal') }}">KPI Overview</a></li>
-            <li><a href="{{ url('/admin/appraisal/add-kpi') }}">Add KPI Goals</a></li>
-            <li><a href="{{ url('/admin/appraisal/reviews') }}">Performance Reviews</a></li>
-            <li><a href="{{ url('/admin/appraisal/employee-kpi-list') }}">Employee KPI List</a></li>
-        </ul>
-    </div>
+  <div class="sidebar-group {{ request()->is('admin/appraisal*') ? 'open' : '' }}">
+      <a href="#" class="sidebar-toggle">
+          <div class="left">
+              <i class="fa-solid fa-chart-line"></i>
+              <span>Appraisal</span>
+          </div>
+          <i class="fa-solid fa-chevron-right arrow"></i>
+      </a>
+      <ul class="submenu">
+          {{-- 1. Dashboard --}}
+          <li><a href="{{ route('admin.appraisal') }}">KPI Overview</a></li>
+
+          {{-- 2. Add Goals --}}
+          <li><a href="{{ route('admin.appraisal.add-kpi') }}">Add KPI Goals</a></li>
+
+          {{-- 3. Review Employees (Renamed & Fixed) --}}
+          <li>
+              <a href="{{ route('admin.appraisal.employee-kpi-list') }}">Employee Reviews</a>
+          </li>
+      </ul>
+  </div>
 
   {{-- TRAINING --}}
     <div class="sidebar-group {{ request()->is('admin/training*') ? 'open' : '' }}">

@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add New Onboarding - HRMS</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
@@ -29,37 +28,37 @@
     <p class="subtitle">Register a new employee onboarding process and assign tasks or checklists.</p>
 
     <div class="form-container">
-      <form action="#" method="POST" class="form-card">
+      <form action="{{ route('admin.onboarding.store') }}" method="POST" class="form-card">
+        @csrf
         <h3><i class="fa-solid fa-user-plus"></i> Employee Information</h3>
 
         <div class="form-group">
-          <label for="employeeName">Employee Name <span>*</span></label>
-          <input type="text" id="employeeName" name="employeeName"
-                 placeholder="Enter employee full name" required>
-        </div>
-
-        <div class="form-group">
-          <label for="department">Department <span>*</span></label>
-          <select id="department" name="department" required>
-            <option value="" disabled selected>Select Department</option>
-            <option>Finance</option>
-            <option>Marketing</option>
-            <option>IT</option>
-            <option>Sales</option>
-            <option>Human Resources</option>
+          <label for="employee_id">Employee Name <span>*</span></label>
+          <select id="employee_id" name="employee_id" required onchange="updateEmployeeDetails()">
+            <option value="" disabled selected>Select an Employee</option>
+            @foreach($employees as $emp)
+                <option value="{{ $emp->employee_id }}" 
+                        data-dept="{{ $emp->department->department_name ?? 'N/A' }}"
+                        data-role="{{ $emp->position->position_name ?? 'N/A' }}">
+                    {{ $emp->user->name ?? 'Unknown' }} ({{ $emp->employee_code }})
+                </option>
+            @endforeach
           </select>
         </div>
 
         <div class="form-group">
-          <label for="assignedRole">Assigned Role <span>*</span></label>
-          <input type="text" id="assignedRole" name="assignedRole"
-                 placeholder="e.g., Junior Accountant" required>
+          <label for="department">Department</label>
+          <input type="text" id="department" name="department" placeholder="Auto-filled" readonly style="background:#f3f4f6;">
+        </div>
+
+        <div class="form-group">
+          <label for="assignedRole">Assigned Role</label>
+          <input type="text" id="assignedRole" name="assignedRole" placeholder="Auto-filled" readonly style="background:#f3f4f6;">
         </div>
 
         <div class="form-group">
           <label for="manager">Reporting Manager</label>
-          <input type="text" id="manager" name="manager"
-                 placeholder="e.g., Mr. Daniel Tan">
+          <input type="text" id="manager" name="manager" placeholder="Enter Manager Name (Optional)">
         </div>
 
         <div class="form-row">
@@ -78,14 +77,13 @@
           Select the tasks that should be completed during the onboarding period.
         </p>
 
-        <!-- Default tasks: just UI for now -->
         <div class="onboarding-tasks-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 24px;margin-bottom:16px;">
           <label class="checkbox-inline">
-            <input type="checkbox" name="default_tasks[]" value="documents">
+            <input type="checkbox" name="default_tasks[]" value="documents" checked>
             <span>Submit required documents</span>
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" name="default_tasks[]" value="orientation">
+            <input type="checkbox" name="default_tasks[]" value="orientation" checked>
             <span>Attend company orientation</span>
           </label>
           <label class="checkbox-inline">
@@ -123,7 +121,19 @@
   </main>
 </div>
 
-
+<script>
+function updateEmployeeDetails() {
+    var select = document.getElementById('employee_id');
+    var option = select.options[select.selectedIndex];
+    
+    // Get data from data-attributes
+    var dept = option.getAttribute('data-dept');
+    var role = option.getAttribute('data-role');
+    
+    document.getElementById('department').value = dept;
+    document.getElementById('assignedRole').value = role;
+}
+</script>
 
 </body>
 </html>

@@ -7,8 +7,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Application;
 use App\Models\JobPost;
 use App\Models\ApplicantProfile;
-// Import User model if needed, though we access it via relationship
+use App\Models\Employee;
+use App\Models\Department;
+use App\Models\Position;
 use App\Models\User;
+use App\Models\Onboarding;
+use App\Models\OnboardingTask;
 
 class ApplicationController extends Controller
 {
@@ -26,41 +30,44 @@ class ApplicationController extends Controller
         return view('admin.applicants_show', compact('application'));
     }
 
-    // 3. Update Status (Auto-Hire Logic Included)
+    // 3. Update Status (Auto-Hire & Auto-Onboarding Logic Included)
     public function updateStatus(Request $request, $id)
     {
         // Fetch application with job and applicant details
         $application = Application::with(['job', 'applicant.user'])->findOrFail($id);
 
         // ======================================================
-        // AUTOMATIC ONBOARDING LOGIC
-        // If status is becoming 'Hired', create the Employee record immediately.
+        // AUTOMATIC HIRING + ONBOARDING LOGIC
         // ======================================================
         if ($request->status === 'Hired') {
-            
+
             $user = $application->applicant->user;
-            
+
             // Check if already exists to prevent duplicate employees
-            $exists = \App\Models\Employee::where('user_id', $user->user_id)->exists();
-            
+            $exists = Employee::where('user_id', $user->user_id)->exists();
+
             if (!$exists) {
                 // 1. Resolve Department (Find or Create)
-                $department = \App\Models\Department::firstOrCreate(
+                $department = Department::firstOrCreate(
                     ['department_name' => $application->job->department],
                     ['created_at' => now(), 'updated_at' => now()]
                 );
 
-                // 2. Resolve Position (Find or Create)
-                $position = \App\Models\Position::firstOrCreate(
+                // 2. Resolve Position (Find or Create) and link to department
+                $position = Position::firstOrCreate(
                     ['position_name' => $application->job->job_title],
-                    ['created_at' => now(), 'updated_at' => now()]
+                    [
+                        'department_id' => $department->department_id,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]
                 );
 
                 // 3. Generate Employee Code (e.g., EMP-XXXXXX)
                 $empCode = 'EMP-' . strtoupper(uniqid());
 
                 // 4. Create Employee Record
-                \App\Models\Employee::create([
+                $newEmployee = Employee::create([
                     'user_id'         => $user->user_id,
                     'department_id'   => $department->department_id,
                     'position_id'     => $position->position_id,
@@ -72,12 +79,42 @@ class ApplicationController extends Controller
                     'address'         => $application->applicant->location ?? 'Not Provided',
                 ]);
 
-                // ======================================================
-                // CRITICAL FIX: UPDATE USER ROLE TO EMPLOYEE
-                // ======================================================
-                // This ensures next time they login, they go to Employee Dashboard
+                // 5. Update User Role to Employee
                 $user->role = 'employee';
-                $user->save(); 
+                $user->save();
+
+                // ======================================================
+                // AUTOMATIC ONBOARDING GENERATION
+                // ======================================================
+
+                // A. Create the Main Onboarding Record
+                $onboarding = Onboarding::create([
+                    'employee_id' => $newEmployee->employee_id,
+                    'assigned_by' => Auth::id(), // admin who clicked 'Hire'
+                    'start_date'  => now(),
+                    'end_date'    => now()->addDays(7),
+                    'status'      => 'Pending'
+                ]);
+
+                // B. Define Standard Default Tasks
+                $defaultTasks = [
+                    ['name' => 'Submit Identity Documents',   'cat' => 'HR Docs'],
+                    ['name' => 'Sign Employment Contract',    'cat' => 'Legal'],
+                    ['name' => 'Setup Corporate Email',       'cat' => 'IT Setup'],
+                    ['name' => 'Attend Company Orientation',  'cat' => 'Training'],
+                    ['name' => 'Meet Reporting Manager',      'cat' => 'Integration'],
+                ];
+
+                // C. Create Tasks in DB
+                foreach ($defaultTasks as $task) {
+                    OnboardingTask::create([
+                        'onboarding_id' => $onboarding->onboarding_id,
+                        'task_name'     => $task['name'],
+                        'category'      => $task['cat'],
+                        'is_completed'  => false,
+                        'due_date'      => now()->addDays(5),
+                    ]);
+                }
             }
         }
 
@@ -87,10 +124,9 @@ class ApplicationController extends Controller
         $application->app_stage = $request->status;
         $application->save();
 
-        $message = ($request->status === 'Hired') 
-                 ? 'Candidate has been Hired, User Role updated to Employee, and added to Database!' 
-                 ? 'Candidate has been Hired and added to Employee Database!' 
-                 : 'Applicant status updated successfully!';
+        $message = ($request->status === 'Hired')
+            ? 'Candidate Hired! Employee profile created and Onboarding Checklist generated.'
+            : 'Applicant status updated successfully!';
 
         return redirect()->back()->with('success', $message);
     }
@@ -99,15 +135,15 @@ class ApplicationController extends Controller
     public function saveEvaluation(Request $request, $id)
     {
         $application = Application::findOrFail($id);
-        
+
         $overall = ($request->test_score + $request->interview_score) / 2;
 
         $application->update([
-            'test_score' => $request->test_score,
-            'interview_score' => $request->interview_score,
-            'overall_score' => $overall,
-            'evaluation_notes' => $request->notes,
-            'app_stage' => 'Interview'
+            'test_score'        => $request->test_score,
+            'interview_score'   => $request->interview_score,
+            'overall_score'     => $overall,
+            'evaluation_notes'  => $request->notes,
+            'app_stage'         => 'Interview'
         ]);
 
         return redirect()->back()->with('success', 'Evaluation saved successfully!');
@@ -124,9 +160,9 @@ class ApplicationController extends Controller
         }
 
         $applications = Application::where('applicant_id', $profile->applicant_id)
-                                   ->with('job')
-                                   ->latest()
-                                   ->get();
+            ->with('job')
+            ->latest()
+            ->get();
 
         return view('applicant.applications', compact('applications'));
     }
