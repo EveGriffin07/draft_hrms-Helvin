@@ -42,9 +42,61 @@ class KpiController extends Controller
     // --- 3. STORE LOGIC (Already Done) ---
     public function store(Request $request)
     {
-        // ... (Keep your existing store logic here) ...
-        
-        // Ensure this redirects to the 'index' route we defined above
+        // 1. Validation
+        $request->validate([
+            'kpiTitle' => 'required|string|max:255',
+            'kpiType'  => 'required',
+            'targetValue' => 'required|numeric',
+            'assignedTo' => 'required',
+            'startDate' => 'required|date',
+            'endDate'   => 'required|date|after_or_equal:startDate',
+        ]);
+
+        // 2. Use Transaction to ensure both Template and Assignment are saved
+        DB::transaction(function () use ($request) {
+            
+            // A. Create the Master Template
+            $template = KpiTemplate::create([
+                'kpi_title'       => $request->kpiTitle,
+                'kpi_description' => $request->kpiDescription,
+                'kpi_type'        => $request->kpiType,
+                'default_target'  => $request->targetValue,
+            ]);
+
+            // B. Check who it is assigned to
+            if ($request->assignedTo === 'Employee') {
+                
+                // Create PERSONAL KPI
+                EmployeeKpi::create([
+                    'employee_id'   => $request->employee, // Value comes from the <select name="employee">
+                    'kpi_id'        => $template->kpi_id,
+                    
+                    // Map Form Dates to Database Columns
+                    'assigned_date' => $request->startDate, 
+                    'deadline'      => $request->endDate,
+                    
+                    'kpi_status'    => 'pending',
+                ]);
+
+            } elseif ($request->assignedTo === 'Department') {
+                
+                // Create DEPARTMENT KPI
+                DepartmentKpi::create([
+                    'department_id' => $request->department,
+                    'kpi_id'        => $template->kpi_id,
+                    
+                    // Map Form Dates
+                    'period_start'  => $request->startDate,
+                    'period_end'    => $request->endDate,
+                    'deadline'      => $request->endDate,
+                    
+                    'target'        => $request->targetValue,
+                    'status'        => 'active',
+                    'user_id'       => Auth::id() ?? 1, // The Admin who created it
+                ]);
+            }
+        });
+
         return redirect()->route('admin.appraisal')->with('success', 'KPI Goal Created Successfully!');
     }
 

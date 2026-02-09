@@ -10,7 +10,7 @@ class LoginController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login'); 
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -28,11 +28,12 @@ class LoginController extends Controller
         ];
 
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate(); 
+            $request->session()->regenerate(); // prevent session fixation
 
             $user = Auth::user();
 
-            // 3. Redirect based on Role column in `users` table
+            // 3. Redirect based on role
+            // Redirect based on role
             if ($user->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }

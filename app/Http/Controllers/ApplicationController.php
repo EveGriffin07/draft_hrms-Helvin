@@ -11,8 +11,8 @@ use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Position;
 use App\Models\User;
-use App\Models\Onboarding; // New Import
-use App\Models\OnboardingTask; // New Import
+use App\Models\Onboarding;
+use App\Models\OnboardingTask;
 
 class ApplicationController extends Controller
 {
@@ -37,15 +37,15 @@ class ApplicationController extends Controller
         $application = Application::with(['job', 'applicant.user'])->findOrFail($id);
 
         // ======================================================
-        // AUTOMATIC HIRING LOGIC
+        // AUTOMATIC HIRING + ONBOARDING LOGIC
         // ======================================================
         if ($request->status === 'Hired') {
-            
+
             $user = $application->applicant->user;
-            
+
             // Check if already exists to prevent duplicate employees
             $exists = Employee::where('user_id', $user->user_id)->exists();
-            
+
             if (!$exists) {
                 // 1. Resolve Department (Find or Create)
                 $department = Department::firstOrCreate(
@@ -53,12 +53,12 @@ class ApplicationController extends Controller
                     ['created_at' => now(), 'updated_at' => now()]
                 );
 
-                // 2. Resolve Position (Find or Create)
-                $position = \App\Models\Position::firstOrCreate(
-                    ['position_name' => $application->job->job_title], // Search by Name
+                // 2. Resolve Position (Find or Create) and link to department
+                $position = Position::firstOrCreate(
+                    ['position_name' => $application->job->job_title],
                     [
-                        'department_id' => $department->department_id, // <--- THE FIX: Link it to the Department
-                        'created_at' => now(), 
+                        'department_id' => $department->department_id,
+                        'created_at' => now(),
                         'updated_at' => now()
                     ]
                 );
@@ -84,35 +84,35 @@ class ApplicationController extends Controller
                 $user->save();
 
                 // ======================================================
-                // NEW: AUTOMATIC ONBOARDING GENERATION
+                // AUTOMATIC ONBOARDING GENERATION
                 // ======================================================
-                
+
                 // A. Create the Main Onboarding Record
                 $onboarding = Onboarding::create([
                     'employee_id' => $newEmployee->employee_id,
-                    'assigned_by' => Auth::id(), // The Admin who clicked 'Hire'
+                    'assigned_by' => Auth::id(), // admin who clicked 'Hire'
                     'start_date'  => now(),
-                    'end_date'    => now()->addDays(7), // Default: 1 week deadline
+                    'end_date'    => now()->addDays(7),
                     'status'      => 'Pending'
                 ]);
 
                 // B. Define Standard Default Tasks
                 $defaultTasks = [
-                    ['name' => 'Submit Identity Documents', 'cat' => 'HR Docs'],
-                    ['name' => 'Sign Employment Contract', 'cat' => 'Legal'],
-                    ['name' => 'Setup Corporate Email', 'cat' => 'IT Setup'],
-                    ['name' => 'Attend Company Orientation', 'cat' => 'Training'],
-                    ['name' => 'Meet Reporting Manager', 'cat' => 'Integration'],
+                    ['name' => 'Submit Identity Documents',   'cat' => 'HR Docs'],
+                    ['name' => 'Sign Employment Contract',    'cat' => 'Legal'],
+                    ['name' => 'Setup Corporate Email',       'cat' => 'IT Setup'],
+                    ['name' => 'Attend Company Orientation',  'cat' => 'Training'],
+                    ['name' => 'Meet Reporting Manager',      'cat' => 'Integration'],
                 ];
 
-                // C. Loop and Create Tasks in Database
+                // C. Create Tasks in DB
                 foreach ($defaultTasks as $task) {
                     OnboardingTask::create([
                         'onboarding_id' => $onboarding->onboarding_id,
                         'task_name'     => $task['name'],
                         'category'      => $task['cat'],
                         'is_completed'  => false,
-                        'due_date'      => now()->addDays(5), // Default due date
+                        'due_date'      => now()->addDays(5),
                     ]);
                 }
             }
@@ -124,9 +124,9 @@ class ApplicationController extends Controller
         $application->app_stage = $request->status;
         $application->save();
 
-        $message = ($request->status === 'Hired') 
-                 ? 'Candidate Hired! Employee profile created and Onboarding Checklist generated.' 
-                 : 'Applicant status updated successfully!';
+        $message = ($request->status === 'Hired')
+            ? 'Candidate Hired! Employee profile created and Onboarding Checklist generated.'
+            : 'Applicant status updated successfully!';
 
         return redirect()->back()->with('success', $message);
     }
@@ -135,15 +135,15 @@ class ApplicationController extends Controller
     public function saveEvaluation(Request $request, $id)
     {
         $application = Application::findOrFail($id);
-        
+
         $overall = ($request->test_score + $request->interview_score) / 2;
 
         $application->update([
-            'test_score' => $request->test_score,
-            'interview_score' => $request->interview_score,
-            'overall_score' => $overall,
-            'evaluation_notes' => $request->notes,
-            'app_stage' => 'Interview'
+            'test_score'        => $request->test_score,
+            'interview_score'   => $request->interview_score,
+            'overall_score'     => $overall,
+            'evaluation_notes'  => $request->notes,
+            'app_stage'         => 'Interview'
         ]);
 
         return redirect()->back()->with('success', 'Evaluation saved successfully!');
@@ -160,9 +160,9 @@ class ApplicationController extends Controller
         }
 
         $applications = Application::where('applicant_id', $profile->applicant_id)
-                                   ->with('job')
-                                   ->latest()
-                                   ->get();
+            ->with('job')
+            ->latest()
+            ->get();
 
         return view('applicant.applications', compact('applications'));
     }

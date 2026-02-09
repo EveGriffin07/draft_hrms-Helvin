@@ -7,6 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="{{ asset('css/hrms.css') }}">
+
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <style>
     body { background:#f5f7fb; }
     main { padding:28px 32px; }
@@ -103,11 +105,18 @@
           </div>
           <div class="toolbar">
             <input type="text" id="search" placeholder="Search employee...">
+
+            <select id="dept">
+              <option value="">All Departments</option>
+              @foreach($departments as $dept)
+                <option value="{{ $dept->department_id }}">{{ $dept->department_name }}</option>
+              @endforeach
+            </select>
             <select id="status">
               <option value="">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Approved">Approved</option>
-              <option value="Hold">Hold</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
             </select>
             <select id="range">
               <option value="">Any Date</option>
@@ -139,42 +148,60 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const DATA = [
-      { id:1, name:'Jane Smith', dept:'Finance', date:'2025-12-05', hours:3.5, reason:'Quarter-end closing', status:'Pending' },
-      { id:2, name:'David Lee', dept:'IT Department', date:'2025-12-04', hours:2.0, reason:'Deployment support', status:'Pending' },
-      { id:3, name:'Anna Wong', dept:'Marketing', date:'2025-12-02', hours:1.5, reason:'Campaign launch', status:'Approved' },
-    ];
 
-    const tbody = document.querySelector('#ot-table tbody');
-    const search = document.getElementById('search');
-    const status = document.getElementById('status');
-    const range = document.getElementById('range');
+    const tbody   = document.querySelector('#ot-table tbody');
+    const search  = document.getElementById('search');
+    const dept    = document.getElementById('dept');
+    const status  = document.getElementById('status');
+    const range   = document.getElementById('range');
+    const CSRF    = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const ENDPOINT_LIST   = "{{ route('admin.payroll.overtime.data') }}";
+    const ENDPOINT_STATUS = (id) => "{{ route('admin.payroll.overtime.status', ['overtime' => '__ID__']) }}".replace('__ID__', id);
 
-    const monthMatch = (d, key) => {
-      const dt = new Date(d);
+    function rangeToDates(key) {
       const now = new Date();
+      const firstOfThis = new Date(now.getFullYear(), now.getMonth(), 1);
       if (key === 'this-month') {
-        return dt.getFullYear() === now.getFullYear() && dt.getMonth() === now.getMonth();
+        return { start: firstOfThis.toISOString().slice(0,10), end: new Date(now.getFullYear(), now.getMonth()+1, 0).toISOString().slice(0,10) };
       }
       if (key === 'last-month') {
-        const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        return dt.getFullYear() === prev.getFullYear() && dt.getMonth() === prev.getMonth();
+        const start = new Date(now.getFullYear(), now.getMonth()-1, 1);
+        const end   = new Date(now.getFullYear(), now.getMonth(), 0);
+        return { start: start.toISOString().slice(0,10), end: end.toISOString().slice(0,10) };
       }
-      return true;
-    };
+      return { start:'', end:'' };
+    }
 
-    function render() {
-      const q = search.value.trim().toLowerCase();
-      const s = status.value;
-      const r = range.value;
+    async function loadData() {
+      tbody.innerHTML = '<tr><td colspan="7">Loading...</td></tr>';
 
-      const rows = DATA.filter(item => {
-        const textMatch = !q || item.name.toLowerCase().includes(q) || item.dept.toLowerCase().includes(q);
-        const statusMatch = !s || item.status === s;
-        const dateMatch = !r || monthMatch(item.date, r);
-        return textMatch && statusMatch && dateMatch;
+      const { start, end } = rangeToDates(range.value);
+      const params = new URLSearchParams({
+        q: search.value.trim(),
+        department: dept.value,
+        status: status.value,
+        start,
+        end,
       });
 
+      try {
+        const resp = await fetch(`${ENDPOINT_LIST}?${params.toString()}`, { headers: { 'Accept': 'application/json' }});
+        if (!resp.ok) throw new Error('Unable to load overtime records');
+        const json = await resp.json();
+        renderTable(Array.isArray(json.data) ? json.data : []);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    function statusBadge(status) {
+      const s = status.toLowerCase();
+      if (s === 'approved') return 'approved';
+      if (s === 'rejected') return 'hold';
+      return 'pending';
+    }
+
+    function renderTable(rows) {
       tbody.innerHTML = '';
       if (!rows.length) {
         tbody.innerHTML = '<tr><td colspan="7">No overtime requests found.</td></tr>';
@@ -182,42 +209,70 @@
       }
 
       rows.forEach(item => {
+
+        const badge = statusBadge(item.status);
         const tr = document.createElement('tr');
-        const badge = item.status === 'Approved' ? 'approved' : item.status === 'Hold' ? 'hold' : 'pending';
         tr.innerHTML = `
-          <td><strong>${item.name}</strong></td>
+          <td><strong>${item.employee}</strong><br><span style="color:#6b7280;">${item.code}</span></td>
           <td>${item.dept}</td>
-          <td>${new Date(item.date).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })}</td>
+          <td>${item.date}</td>
           <td>${item.hours}</td>
-          <td>${item.reason}</td>
+          <td>${item.reason ?? '-'}</td>
           <td><span class="status ${badge}">${item.status}</span></td>
           <td>
-            ${item.status === 'Pending'
-              ? `<button class="btn btn-approve" data-id="${item.id}" data-action="approve"><i class="fa-solid fa-check"></i> Approve</button>
-                 <button class="btn btn-reject" data-id="${item.id}" data-action="reject"><i class="fa-solid fa-xmark"></i> Reject</button>`
-              : `<button class="btn btn-view" data-id="${item.id}" data-action="view"><i class="fa-regular fa-eye"></i> View</button>`
+            ${item.status.toLowerCase() === 'pending'
+              ? `<button class="btn btn-approve" data-id="${item.ot_id}" data-action="approve"><i class="fa-solid fa-check"></i> Approve</button>
+                 <button class="btn btn-reject" data-id="${item.ot_id}" data-action="reject"><i class="fa-solid fa-xmark"></i> Reject</button>`
+              : `<button class="btn btn-view" data-id="${item.ot_id}" data-action="view"><i class="fa-regular fa-eye"></i> View</button>`
             }
           </td>
         `;
         tbody.appendChild(tr);
       });
 
+
+      bindActions();
+    }
+
+    function bindActions() {
       document.querySelectorAll('[data-action]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = Number(btn.dataset.id);
+        btn.addEventListener('click', async () => {
           const action = btn.dataset.action;
-          const idx = DATA.findIndex(x => x.id === id);
-          if (idx === -1) return;
-          if (action === 'approve') DATA[idx].status = 'Approved';
-          if (action === 'reject') DATA[idx].status = 'Hold';
-          render();
+          if (action === 'view') return;
+
+          const id = btn.dataset.id;
+          const label = btn.innerHTML;
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+          try {
+            const resp = await fetch(ENDPOINT_STATUS(id), {
+              method: 'POST',
+              headers: {
+                'X-CSRF-TOKEN': CSRF,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ action }),
+            });
+            if (!resp.ok) throw new Error(await resp.text() || 'Update failed');
+            await loadData();
+          } catch (err) {
+            alert('Unable to update overtime: ' + err.message);
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = label;
+          }
         });
       });
     }
 
-    [search, status, range].forEach(el => el.addEventListener('input', render));
-    render();
+
+    [search, dept, status, range].forEach(el => el.addEventListener('input', loadData));
+
+    loadData();
   });
   </script>
 </body>
 </html>
+

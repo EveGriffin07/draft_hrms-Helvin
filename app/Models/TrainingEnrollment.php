@@ -24,8 +24,14 @@ class TrainingEnrollment extends Model
     }
 
     // Relationship: Enrollment belongs to a Training Program
-    public function training()
+    public function program()
     {
         return $this->belongsTo(TrainingProgram::class, 'training_id', 'training_id');
+    }
+
+    // Backward compatibility: alias
+    public function training()
+    {
+        return $this->program();
     }
 }

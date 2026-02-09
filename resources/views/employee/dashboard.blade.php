@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Employee Dashboard - HRMS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link rel="stylesheet" href="{{ asset('css/hrms-theme.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -105,6 +105,47 @@
       background:#16a34a;
       box-shadow:0 0 0 6px rgba(22,163,74,0.12);
     }
+
+    /* --- UPDATED: New Announcement CSS --- */
+    .announcement-panel {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    }
+    .announcement-list { display: flex; flex-direction: column; gap: 12px; }
+    .ann-item {
+        display: flex; gap: 16px; padding: 16px; border-radius: 12px;
+        border: 1px solid #f1f5f9; background: #fff;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+        cursor: pointer; text-decoration: none;
+    }
+    .ann-item:hover {
+        border-color: #cbd5e1; transform: translateY(-2px); box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.05);
+    }
+    .ann-date-box {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        width: 60px; height: 60px; background: #eff6ff; border-radius: 12px;
+        color: #2563eb; flex-shrink: 0;
+    }
+    .ann-date-day { font-size: 20px; font-weight: 800; line-height: 1; }
+    .ann-date-month { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 4px; opacity: 0.8; }
+    
+    .ann-content { flex: 1; }
+    .ann-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .ann-title { font-size: 15px; font-weight: 700; color: #0f172a; margin: 0; }
+    .ann-excerpt {
+        font-size: 13px; color: #64748b; line-height: 1.5; margin: 0;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .priority-badge {
+        font-size: 11px; padding: 4px 10px; border-radius: 99px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .badge-high { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+    .badge-normal { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    /* --- END UPDATED CSS --- */
 
     .analytics-row {
       display:grid;
@@ -231,7 +272,6 @@
 
   <div class="container dashboard-shell">
     
-    {{-- FIX: Point to the new sidebar file --}}
     @include('employee.layout.sidebar')
 
     <main class="dashboard-main">
@@ -303,6 +343,65 @@
             </div>
           </div>
         </article>
+      </section>
+
+      {{-- NEW: ANNOUNCEMENT SECTION (Updated Design) --}}
+      <section class="announcement-panel">
+        
+        {{-- Header --}}
+        <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div class="panel .label" style="display:flex; align-items:center; gap:8px; font-weight:700; color:#0f172a; font-size:15px;">
+                <i class="fa-solid fa-bullhorn" style="color:#f59e0b;"></i> Latest Announcements
+            </div>
+            <a href="#" style="font-size:13px; color:#2563eb; text-decoration:none; font-weight:600;">View All</a>
+        </header>
+
+        {{-- List --}}
+        <div class="announcement-list">
+            @forelse($announcements as $ann)
+            {{-- Card Item (Clickable) --}}
+            <a href="{{ route('employee.announcements.show', $ann->announcement_id) }}" class="ann-item">
+                
+                {{-- Date Box --}}
+                <div class="ann-date-box">
+                    <span class="ann-date-day">{{ \Carbon\Carbon::parse($ann->publish_at)->format('d') }}</span>
+                    <span class="ann-date-month">{{ \Carbon\Carbon::parse($ann->publish_at)->format('M') }}</span>
+                </div>
+
+                {{-- Content --}}
+                <div class="ann-content">
+                    <div class="ann-header">
+                        <h4 class="ann-title">{{ $ann->title }}</h4>
+                        
+                        {{-- Priority Badge (Handles Critical/High/Normal) --}}
+                        @php $p = strtolower($ann->priority); @endphp
+
+                        @if($p == 'critical' || $p == 'urgent')
+                            <span class="priority-badge badge-high" style="background:#fee2e2; color:#dc2626; border-color:#fecaca;">
+                                <i class="fa-solid fa-fire" style="font-size:10px; margin-right:4px;"></i> {{ $ann->priority }}
+                            </span>
+                        @elseif($p == 'high')
+                            <span class="priority-badge badge-high" style="background:#ffedd5; color:#c2410c; border-color:#fed7aa;">
+                                {{ $ann->priority }}
+                            </span>
+                        @else
+                            <span class="priority-badge badge-normal">
+                                {{ $ann->priority }}
+                            </span>
+                        @endif
+                    </div>
+                    <p class="ann-excerpt">{{ Str::limit($ann->content, 120) }}</p>
+                </div>
+
+            </a>
+            @empty
+            {{-- Empty State --}}
+            <div style="text-align:center; padding:40px; background:#f8fafc; border-radius:12px; border:1px dashed #cbd5e1;">
+                <i class="fa-regular fa-folder-open" style="font-size:32px; color:#cbd5e1; margin-bottom:12px;"></i>
+                <p style="color:#64748b; font-size:14px; margin:0;">No announcements posted yet.</p>
+            </div>
+            @endforelse
+        </div>
       </section>
 
       <div class="analytics-row">

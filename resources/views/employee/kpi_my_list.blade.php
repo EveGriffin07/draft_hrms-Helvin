@@ -115,7 +115,7 @@
         </table>
       </div>
 
-      <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
+      <footer>© 2026 Web-Based HRMS. All Rights Reserved.</footer>
     </main>
   </div>
 

@@ -58,14 +58,17 @@
             </select>
           </div>
 
+          {{-- DYNAMIC DEPARTMENT SELECTION --}}
           <div class="form-group">
             <label for="department">Department <span>*</span></label>
             <select id="department" name="department" required>
-              <option value="Human Resources" {{ (old('department', $job->department ?? '') == 'Human Resources') ? 'selected' : '' }}>Human Resources</option>
-              <option value="Finance" {{ (old('department', $job->department ?? '') == 'Finance') ? 'selected' : '' }}>Finance</option>
-              <option value="IT" {{ (old('department', $job->department ?? '') == 'IT') ? 'selected' : '' }}>Information Technology</option>
-              <option value="Sales" {{ (old('department', $job->department ?? '') == 'Sales') ? 'selected' : '' }}>Sales</option>
-              <option value="Marketing" {{ (old('department', $job->department ?? '') == 'Marketing') ? 'selected' : '' }}>Marketing</option>
+              <option value="" disabled selected>-- Select Department --</option>
+              @foreach($departments as $dept)
+                  <option value="{{ $dept->department_name }}" 
+                      {{ (old('department', $job->department ?? '') == $dept->department_name) ? 'selected' : '' }}>
+                      {{ $dept->department_name }}
+                  </option>
+              @endforeach
             </select>
           </div>
 
@@ -123,7 +126,5 @@
       <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
     </main>
   </div>
-
-  
 </body>
 </html>

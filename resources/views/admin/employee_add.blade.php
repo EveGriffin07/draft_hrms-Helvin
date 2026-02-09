@@ -14,9 +14,10 @@
   <div class="title">Web-Based HRMS</div>
   <div class="user-info">
     <a href="{{ route('admin.profile') }}" style="text-decoration: none; color: inherit;">
-        <i class="fa-regular fa-bell"></i> &nbsp; HR Admin
+
+        <i class="fa-regular fa-bell"></i> &nbsp; {{ Auth::user()->name ?? 'HR Admin' }}
     </a>
-</div>
+  </div>
 </header>
 
 <div class="container">
@@ -28,59 +29,97 @@
     <p class="subtitle">Add new employee information into the system.</p>
 
     <div class="form-container">
-      <form class="form-card" method="POST" action="{{ url('/admin/employee/add') }}">
+
+      @if ($errors->any())
+        <div style="background:#fef2f2; border:1px solid #fecdd3; color:#b91c1c; padding:12px 14px; border-radius:10px; margin-bottom:14px;">
+          <strong>Fix the following:</strong>
+          <ul style="margin:8px 0 0 18px; padding:0; list-style:disc;">
+            @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+
+      @if (session('success'))
+        <div style="background:#ecfdf3; border:1px solid #bbf7d0; color:#166534; padding:12px 14px; border-radius:10px; margin-bottom:14px;">
+          {{ session('success') }}
+        </div>
+      @endif
+
+      <form class="form-card" method="POST" action="{{ route('admin.employee.store') }}">
         @csrf
         <h3><i class="fa-solid fa-user-plus"></i> Employee Information</h3>
 
         <div class="form-group">
           <label for="employeeName">Full Name <span>*</span></label>
-          <input type="text" id="employeeName" name="employeeName" placeholder="e.g., John Doe" required>
+
+          <input type="text" id="employeeName" name="name" value="{{ old('name') }}" placeholder="e.g., John Doe" required>
         </div>
 
         <div class="form-group">
           <label for="email">Email Address <span>*</span></label>
-          <input type="email" id="email" name="email" placeholder="e.g., john@example.com" required>
+
+          <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="e.g., john@example.com" required>
         </div>
 
         <div class="form-group">
           <label for="phone">Phone Number</label>
-          <input type="text" id="phone" name="phone" placeholder="e.g., +60123456789">
+
+          <input type="text" id="phone" name="phone" value="{{ old('phone') }}" placeholder="e.g., +60123456789">
         </div>
 
         <div class="form-group">
           <label for="department">Department <span>*</span></label>
-          <select id="department" name="department" required>
-            <option value="" disabled selected>Select Department</option>
-            <option value="Human Resources">Human Resources</option>
-            <option value="Finance">Finance</option>
-            <option value="IT">Information Technology</option>
-            <option value="Sales">Sales</option>
-            <option value="Marketing">Marketing</option>
+
+          <select id="department" name="department_id" required>
+            <option value="" disabled {{ old('department_id') ? '' : 'selected' }}>Select Department</option>
+            @foreach($departments as $dept)
+              <option value="{{ $dept->department_id }}" {{ old('department_id') == $dept->department_id ? 'selected' : '' }}>
+                {{ $dept->department_name }}
+              </option>
+            @endforeach
           </select>
         </div>
 
         <div class="form-group">
-          <label for="designation">Designation <span>*</span></label>
-          <input type="text" id="designation" name="designation" placeholder="e.g., Software Engineer" required>
+
+          <label for="designation">Position <span>*</span></label>
+          <select id="designation" name="position_id" required>
+            <option value="" disabled {{ old('position_id') ? '' : 'selected' }}>Select Position</option>
+            @foreach($positions as $pos)
+              <option value="{{ $pos->position_id }}" {{ old('position_id') == $pos->position_id ? 'selected' : '' }}>
+                {{ $pos->position_name }}
+              </option>
+            @endforeach
+          </select>
         </div>
 
         <div class="form-row">
           <div class="form-group half">
-            <label for="joinDate">Join Date</label>
-            <input type="date" id="joinDate" name="joinDate">
+
+            <label for="joinDate">Join Date <span>*</span></label>
+            <input type="date" id="joinDate" name="hire_date" value="{{ old('hire_date') }}" required>
           </div>
           <div class="form-group half">
             <label for="status">Employment Status</label>
-            <select id="status" name="status">
-              <option value="Active" selected>Active</option>
-              <option value="Inactive">Inactive</option>
+            <select id="status" name="employee_status">
+              <option value="active" {{ old('employee_status', 'active') === 'active' ? 'selected' : '' }}>Active</option>
+              <option value="inactive" {{ old('employee_status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+              <option value="terminated" {{ old('employee_status') === 'terminated' ? 'selected' : '' }}>Terminated</option>
             </select>
           </div>
         </div>
 
         <div class="form-group">
+
+          <label for="baseSalary">Base Salary <span>*</span></label>
+          <input type="number" step="0.01" min="0" id="baseSalary" name="base_salary" value="{{ old('base_salary', '0') }}" placeholder="e.g., 5000.00" required>
+        </div>
+
+        <div class="form-group">
           <label for="address">Address</label>
-          <textarea id="address" name="address" rows="3" placeholder="Enter employee address"></textarea>
+          <textarea id="address" name="address" rows="3" placeholder="Enter employee address">{{ old('address') }}</textarea>
         </div>
 
         <div class="form-actions">
@@ -90,7 +129,8 @@
       </form>
     </div>
 
-    <footer>© 2025 Web-Based HRMS. All Rights Reserved.</footer>
+
+    <footer>&copy; 2025 Web-Based HRMS. All Rights Reserved.</footer>
   </main>
 </div>
 
@@ -201,3 +241,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+

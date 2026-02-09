@@ -167,7 +167,7 @@
       </div>
 
       <footer style="text-align: center; margin-top: 40px; color: #94a3b8; font-size: 12px;">
-        © 2025 Web-Based HRMS. All Rights Reserved.
+        © 2026 Web-Based HRMS. All Rights Reserved.
       </footer>
     </main>
   </div>
