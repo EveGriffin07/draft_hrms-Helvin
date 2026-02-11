@@ -48,4 +48,9 @@ class Employee extends Model
     {
         return $this->hasOne(EmployeeFace::class, 'employee_id', 'employee_id');
     }
+
+    public function faceTemplates()
+    {
+        return $this->hasMany(EmployeeFaceTemplate::class, 'employee_id', 'employee_id');
+    }
 }

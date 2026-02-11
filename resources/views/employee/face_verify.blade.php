@@ -55,12 +55,6 @@
         </div>
       @endif
 
-      @if(! $faceData)
-        <div class="notice info">
-          <i class="fa-solid fa-id-card-clip"></i> No face enrollment found. Ask HR/Admin to enroll your face first.
-        </div>
-      @endif
-
       <div class="form-container">
         <div class="form-card">
           <h3><i class="fa-solid fa-user-shield"></i> Verify My Face</h3>
@@ -82,32 +76,27 @@
 
           <form id="face-verify-form" method="POST" enctype="multipart/form-data" action="{{ route('face.verify', $employee->employee_id) }}">
             @csrf
-            <div class="form-group">
-              <label for="verify-image">Face Image</label>
-              <input type="file" id="verify-image" name="image" accept="image/*" capture="user" required {{ $faceData ? '' : 'disabled' }}>
-              <small class="muted">PNG/JPG, up to 5 MB. Good lighting helps matching.</small>
-            </div>
 
             <div class="camera-wrap">
               <div class="camera-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                   <span style="font-weight:600; color:#0f172a;">Live Camera</span>
-                  <button type="button" class="btn btn-secondary btn-small" id="start-camera">
+                  <button type="button" class="btn btn-secondary btn-small" id="start-camera" {{ $faceData ? '' : 'disabled' }}>
                     <i class="fa-solid fa-camera"></i> Start
                   </button>
                 </div>
                 <video id="camera-preview" autoplay playsinline muted></video>
                 <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
-                  <button type="button" class="btn btn-primary btn-small" id="capture-photo">
+                  <button type="button" class="btn btn-primary btn-small" id="capture-photo" {{ $faceData ? '' : 'disabled' }}>
                     <i class="fa-solid fa-circle-dot"></i> Capture
                   </button>
                 </div>
-                <small class="muted">Captured frame replaces the upload input.</small>
+                <small class="muted">Captured frame is submitted for verification.</small>
               </div>
               <div class="camera-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                   <span style="font-weight:600; color:#0f172a;">Snapshot</span>
-                  <button type="button" class="btn btn-secondary btn-small" id="clear-image">
+                  <button type="button" class="btn btn-secondary btn-small" id="clear-image" {{ $faceData ? '' : 'disabled' }}>
                     <i class="fa-solid fa-rotate-left"></i> Clear
                   </button>
                 </div>
@@ -120,10 +109,12 @@
               <button type="submit" class="btn btn-primary" {{ $faceData ? '' : 'disabled' }}>
                 <i class="fa-solid fa-fingerprint"></i> Verify Face
               </button>
-              <button type="reset" class="btn btn-secondary" id="reset-form">
+              <button type="reset" class="btn btn-secondary" id="reset-form" {{ $faceData ? '' : 'disabled' }}>
                 <i class="fa-solid fa-eraser"></i> Reset
               </button>
             </div>
+
+            <input type="file" id="verify-image" name="image" accept="image/*" capture="user" hidden>
           </form>
 
           @if($verifyResult)

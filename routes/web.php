@@ -301,6 +301,28 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/employee/training/{id}', [EmployeeTrainingController::class, 'show'])
         ->name('employee.training.show');
 
+    // Face enrollment (employee self)
+    Route::get('/employee/face/enroll', [\App\Http\Controllers\EmployeeFaceController::class, 'enrollForm'])
+        ->name('employee.face.enroll');
+    Route::post('/employee/face/enroll', [\App\Http\Controllers\EmployeeFaceController::class, 'enroll'])
+        ->name('employee.face.enroll.post');
+    Route::delete('/employee/face/templates/{template}', [\App\Http\Controllers\EmployeeFaceController::class, 'destroy'])
+        ->name('employee.face.templates.destroy');
+
+    // Employee self-service pages
+    Route::view('/employee/attendance/log', 'employee.attendance')->name('employee.attendance.log');
+    Route::get('/employee/attendance/overtime', [\App\Http\Controllers\EmployeeOvertimeController::class, 'index'])
+        ->name('employee.attendance.overtime');
+    Route::post('/employee/attendance/overtime', [\App\Http\Controllers\EmployeeOvertimeController::class, 'store'])
+        ->name('employee.attendance.overtime.store');
+    Route::delete('/employee/attendance/overtime/{overtime}', [\App\Http\Controllers\EmployeeOvertimeController::class, 'destroy'])
+        ->name('employee.attendance.overtime.destroy');
+    Route::view('/employee/leave/apply', 'employee.leave')->name('employee.leave.apply');
+    Route::view('/employee/leave/balance', 'employee.leave')->name('employee.leave.balance');
+    Route::view('/employee/leave/history', 'employee.leave')->name('employee.leave.history');
+    Route::view('/employee/payroll/payslips', 'employee.payroll')->name('employee.payroll.payslips');
+    Route::view('/employee/payroll/tax', 'employee.payroll')->name('employee.payroll.tax');
+
     // Face Verification (Employee self-service)
     Route::get('/employee/face/verify', [FaceRecognitionController::class, 'showVerifyForm'])
         ->name('employee.face.verify.form');

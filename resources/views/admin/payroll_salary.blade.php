@@ -132,7 +132,6 @@
             <button class="btn-ghost" id="adj-reset">Reset Employee</button>
           </div>
         </div>
-        <p class="muted" style="margin-top:8px;">These adjustments are demo-only and apply instantly (no database writes).</p>
       </div>
 
       <div class="card">
@@ -154,7 +153,6 @@
           </thead>
           <tbody></tbody>
         </table>
-        <p class="muted" style="margin-top:8px;">Click View to see the full formula breakdown with your adjustments applied.</p>
       </div>
 
       <footer style="text-align:center; color:#94a3b8; font-size:12px;">Ac 2025 Web-Based HRMS. All Rights Reserved.</footer>

@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 import numpy as np
 import cv2
 import ast
+from typing import List
 
 from insightface.app import FaceAnalysis
 
@@ -45,25 +46,37 @@ def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
 # --- API ---
 @app.post("/enroll")
 async def enroll_face(
-    user_id: str = Form(...),
-    image: UploadFile = File(...)
+    employee_id: str = Form(...),
+    images: List[UploadFile] = File(...)
 ):
-    img = read_image(await image.read())
-    if img is None:
-        return JSONResponse({"ok": False, "error": "Invalid image"}, status_code=400)
+    embeddings = []
+    for image in images:
+        img = read_image(await image.read())
+        if img is None:
+            return JSONResponse({"ok": False, "error": "Invalid image"}, status_code=400)
 
-    emb, error = extract_embedding(img)
-    if error:
-        return JSONResponse({"ok": False, "error": error}, status_code=400)
+        emb, error = extract_embedding(img)
+        if error:
+            return JSONResponse({"ok": False, "error": error}, status_code=400)
+
+        embeddings.append(emb.tolist())
 
     return {
         "ok": True,
-        "user_id": user_id,
-        "embedding": emb.tolist()
+        "employee_id": employee_id,
+        "embeddings": embeddings,
     }
 
 
+def verify_logic(user_id: str, image: UploadFile, stored_embedding: str, threshold: float):
+    """
+    Shared verify/match logic.
+    """
+    return {"user_id": user_id, "image": image, "stored_embedding": stored_embedding, "threshold": threshold}
+
+
 @app.post("/verify")
+@app.post("/match")
 async def verify_face(
     user_id: str = Form(...),
     image: UploadFile = File(...),

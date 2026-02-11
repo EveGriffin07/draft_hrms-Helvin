@@ -283,7 +283,9 @@
         </div>
         <div class="hero-actions">
           <div class="chip"><i class="fa-regular fa-calendar"></i> {{ \Carbon\Carbon::now()->format('d M Y') }}</div>
-          <button class="pill-btn"><i class="fa-solid fa-plane-up"></i> Request Leave</button>
+        <a class="pill-btn" href="{{ route('employee.face.verify.form') }}"><i class="fa-solid fa-user-check"></i> Face Verification</a>
+        <a class="pill-btn" href="{{ route('employee.face.enroll') }}"><i class="fa-solid fa-face-smile"></i> Enroll Face</a>
+        <a class="pill-btn" href="{{ route('employee.leave.apply') }}"><i class="fa-solid fa-plane-up"></i> Request Leave</a>
         </div>
       </div>
 

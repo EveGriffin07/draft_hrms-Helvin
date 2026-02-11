@@ -7,6 +7,7 @@ use App\Models\EmployeeFace;
 use App\Services\FaceApiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Attendance;
 
 class FaceRecognitionController extends Controller
 {
@@ -105,9 +106,21 @@ class FaceRecognitionController extends Controller
             return back()->withErrors(['face' => $result['message'] ?? 'Face verification failed.']);
         }
 
+        // Record attendance (present if matched, absent otherwise)
+        Attendance::create([
+            'employee_id'   => $employee->employee_id,
+            'date'          => now()->toDateString(),
+            'clock_in_time' => now()->toTimeString(),
+            'clock_out_time'=> null,
+            'at_status'     => ($result['matched'] ?? false) ? 'present' : 'absent',
+            'late_minutes'  => 0,
+            'verified_method' => 'face',
+            'verify_score'    => $result['score'] ?? null,
+        ]);
+
         return back()
             ->with('verify_result', $result)
-            ->with('success', $result['message'] ?? 'Verification complete.');
+            ->with('success', $result['message'] ?? 'Attendance recorded via face verification.');
     }
 
     private function ensureAdmin(): void

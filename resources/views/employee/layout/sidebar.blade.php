@@ -44,41 +44,31 @@
       <i class="fa-solid fa-chevron-right arrow"></i>
     </a>
     <ul class="submenu">
-      <li><a href="{{ url('/employee/attendance/log') }}">Daily Log</a></li>
-      <li><a href="{{ url('/employee/attendance/overtime') }}">Overtime Records</a></li>
+      <li><a href="{{ route('employee.attendance.log') }}">Daily Log</a></li>
+      <li><a href="{{ route('employee.attendance.overtime') }}">Overtime Records</a></li>
+      <li><a href="{{ route('employee.face.enroll') }}">Face Enrollment</a></li>
       <li><a href="{{ route('employee.face.verify.form') }}">Verify My Face</a></li>
     </ul>
   </div>
 
   {{-- 5. MY LEAVE --}}
   <div class="sidebar-group {{ request()->is('employee/leave*') ? 'open' : '' }}">
-    <a href="#" class="sidebar-toggle">
+    <a href="{{ route('employee.leave.apply') }}" class="sidebar-toggle sidebar-quick-link">
       <div class="left">
         <i class="fa-solid fa-plane-departure"></i>
         <span>My Leave</span>
       </div>
-      <i class="fa-solid fa-chevron-right arrow"></i>
     </a>
-    <ul class="submenu">
-      <li><a href="{{ url('/employee/leave/apply') }}">Apply for Leave</a></li>
-      <li><a href="{{ url('/employee/leave/balance') }}">Leave Balance</a></li>
-      <li><a href="{{ url('/employee/leave/history') }}">My Requests</a></li>
-    </ul>
   </div>
 
   {{-- 6. MY PAYROLL --}}
   <div class="sidebar-group {{ request()->is('employee/payroll*') ? 'open' : '' }}">
-    <a href="#" class="sidebar-toggle">
+    <a href="{{ route('employee.payroll.payslips') }}" class="sidebar-toggle sidebar-quick-link">
       <div class="left">
         <i class="fa-solid fa-file-invoice-dollar"></i>
         <span>My Payroll</span>
       </div>
-      <i class="fa-solid fa-chevron-right arrow"></i>
     </a>
-    <ul class="submenu">
-      <li><a href="{{ url('/employee/payroll/payslips') }}">My Payslips</a></li>
-      <li><a href="{{ url('/employee/payroll/tax') }}">Tax Documents</a></li>
-    </ul>
   </div>
 
   {{-- ✅ 7. MY PERFORMANCE (UPDATED) --}}
