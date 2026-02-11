@@ -284,7 +284,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/employee/dashboard', [EmployeeController::class, 'index'])
         ->name('employee.dashboard');
 
-    // ===> NEW: View Announcement Detail <===
+    // View Announcement Detail (Employee)
     Route::get('/employee/announcements/{id}', [EmployeeController::class, 'showAnnouncement'])
         ->name('employee.announcements.show');
 

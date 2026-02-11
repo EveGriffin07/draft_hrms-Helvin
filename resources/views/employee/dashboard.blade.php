@@ -271,7 +271,8 @@
   </header>
 
   <div class="container dashboard-shell">
-    
+
+    {{-- FIX: Point to the new sidebar file --}}
     @include('employee.layout.sidebar')
 
     <main class="dashboard-main">
@@ -390,7 +391,7 @@
                             </span>
                         @endif
                     </div>
-                    <p class="ann-excerpt">{{ Str::limit($ann->content, 120) }}</p>
+                    <p class="ann-excerpt">{{ \Illuminate\Support\Str::limit($ann->content, 120) }}</p>
                 </div>
 
             </a>
@@ -434,8 +435,8 @@
               <li><span class="swatch" style="background:#facc15;"></span> Emergency <span class="muted">1 day</span></li>
               <li><span class="swatch" style="background:#a855f7;"></span> Other <span class="muted">0.5 day</span></li>
             </ul>
-        </div>
-      </section>
+          </div>
+        </section>
       </div>
 
       <section class="reports-card">
@@ -528,7 +529,7 @@
       </section>
 
       <p style="text-align:center; color:#4b5563; font-size:12px; margin:10px 0 0;">Figure 4.1 : Employee Dashboard.</p>
-      <footer>&copy; 2025 Web-Based HRMS. All Rights Reserved.</footer>
+      <footer>&copy; 2025 Web-Based HRMS. All Rights reserved.</footer>
     </main>
   </div>
 

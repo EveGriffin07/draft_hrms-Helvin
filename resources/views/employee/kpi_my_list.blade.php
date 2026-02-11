@@ -97,7 +97,7 @@
 
               <td>
                  @if($kpi->comments)
-                    <span style="font-style: italic; color:#4b5563;">"{{ Str::limit($kpi->comments, 40) }}"</span>
+                    <span style="font-style: italic; color:#4b5563;">"{{ \Illuminate\Support\Str::limit($kpi->comments, 40) }}"</span>
                  @else
                     <span style="color:#9ca3af;">No feedback yet</span>
                  @endif
