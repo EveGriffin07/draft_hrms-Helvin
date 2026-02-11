@@ -141,7 +141,7 @@
         <div class="action-section">
             
             {{-- CHECK: Is the location a URL? (Starts with http or https) --}}
-            @if(Str::startsWith($enrollment->training->location, ['http://', 'https://']))
+            @if(\Illuminate\Support\Str::startsWith($enrollment->training->location, ['http://', 'https://']))
                 
                 {{-- CASE 1: IT IS A LINK (Online) --}}
                 <a href="{{ $enrollment->training->location }}" target="_blank" class="action-btn" style="background-color: #2563eb;">
@@ -167,7 +167,7 @@
       </div>
 
       <footer style="text-align: center; margin-top: 40px; color: #94a3b8; font-size: 12px;">
-        © 2025 Web-Based HRMS. All Rights Reserved.
+        © 2026 Web-Based HRMS. All Rights Reserved.
       </footer>
     </main>
   </div>

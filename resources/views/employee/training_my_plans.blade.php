@@ -148,7 +148,7 @@
         @endif
       </div>
 
-      <footer>&copy; 2025 Web-Based HRMS. All Rights Reserved.</footer>
+      <footer>&copy; 2026 Web-Based HRMS. All Rights Reserved.</footer>
     </main>
   </div>
 

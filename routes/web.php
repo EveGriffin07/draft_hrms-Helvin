@@ -284,6 +284,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/employee/dashboard', [EmployeeController::class, 'index'])
         ->name('employee.dashboard');
 
+    // View Announcement Detail (Employee)
+    Route::get('/employee/announcements/{id}', [EmployeeController::class, 'showAnnouncement'])
+        ->name('employee.announcements.show');
+
     // Training Plans (Employee)
     Route::get('/employee/training/my-plans', [EmployeeTrainingController::class, 'index'])
         ->name('employee.training.index');
